@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My University Adventure - Pixel</title>
+  <title>My University Adventure - Pixel (1:3 Real Campus Map & Wardrobe)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -155,6 +155,21 @@
     .dpad-up { top: 0; left: 39px; } .dpad-down { bottom: 0; left: 39px; } .dpad-left { top: 39px; left: 0; } .dpad-right { top: 39px; right: 0; }
     .touch-actions { display: flex; gap: 10px; pointer-events: auto; }
     .touch-btn { width: 52px; height: 52px; border-radius: 50%; background: rgba(37,99,235,0.85); border: 2px solid rgba(255,255,255,0.5); color: #fff; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+    /* === v3.0 Character & Wardrobe (角色与时装系统) === */
+    .char-tabs { display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 2px solid #334155; padding-bottom: 8px; }
+    .char-tab-btn { background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+    .char-tab-btn.active { background: #2563eb; border-color: #60a5fa; color: #fff; }
+    .char-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 640px) { .char-layout { grid-template-columns: 1fr; } }
+    .char-preview-card { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); border: 2px solid #facc15; border-radius: 10px; padding: 12px; text-align: center; }
+    #char-preview-canvas { background: radial-gradient(circle at center, #1e3a8a 0%, #090d16 75%); border: 1.5px solid #475569; border-radius: 8px; display: block; margin: 0 auto 8px; }
+    .char-stat-row { display: flex; justify-content: space-between; padding: 7px 10px; background: #1e293b; border-radius: 6px; margin-bottom: 6px; font-size: 12.5px; border: 1px solid #334155; }
+    .wardrobe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .outfit-card { background: #1e293b; border: 2px solid #334155; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .outfit-card:hover { border-color: #38bdf8; transform: translateY(-2px); }
+    .outfit-card.equipped { border-color: #facc15; background: rgba(234, 179, 8, 0.14); box-shadow: 0 0 12px rgba(250, 204, 21, 0.35); }
+    .outfit-swatch { width: 38px; height: 38px; border-radius: 6px; margin: 0 auto 6px; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px; }
   </style>
 </head>
 <body>
@@ -164,15 +179,17 @@
 
     <div id="top-nav-bar">
       <div class="hud-badge">
-        <div class="hud-main-title">MY UNIVERSITY ADVENTURE - PIXEL</div>
+        <div class="hud-main-title">MY UNIVERSITY ADVENTURE - PIXEL · 1:3</div>
         <div class="hud-sub-zone">
           <span class="zone-indicator"></span>
           <span id="current-zone-label">📍 当前区域: University 中央校道环岛 (Main Roundabout)</span>
         </div>
       </div>
       <div class="top-action-btn-group">
+        <button class="mc-btn-pill" id="open-character-btn"><span>👤</span><span>角色与时装 [C]</span></button>
+        <button class="mc-btn-pill" id="toggle-camera-btn"><span>🎥</span><span id="camera-mode-label">第一人称 [V]</span></button>
         <button class="mc-btn-pill" id="toggle-lighting-btn"><span>☀️</span><span id="lighting-mode-label">正午光影 [L]</span></button>
-        <button class="mc-btn-pill" id="open-campus-map-btn"><span>🗺️</span><span>大学校园全图 [M]</span></button>
+        <button class="mc-btn-pill" id="open-campus-map-btn"><span>🗺️</span><span>1:3 真实地图 [M]</span></button>
       </div>
     </div>
 
@@ -189,8 +206,8 @@
       <div class="quest-station-name" id="hud-quest-name">语言中心 · 第八研讨室</div>
       <div class="quest-task-desc" id="hud-quest-desc">沿长城石阶登上东侧山脊，寻找王老师完成汉字笔画临摹与拼音实训。</div>
       <div class="quest-coords-row">
-        <span id="hud-quest-coords">目标坐标: X: 135, Z: 30</span>
-        <span id="hud-quest-dist" style="color: #facc15; font-weight: bold;">距离: 138m</span>
+        <span id="hud-quest-coords">目标坐标: X: 115.6, Z: 23.1</span>
+        <span id="hud-quest-dist" style="color: #facc15; font-weight: bold;">距离: 118m</span>
       </div>
     </div>
 
@@ -243,9 +260,9 @@
     <div class="modal-overlay" id="campus-map-modal">
       <div class="mc-window" style="max-width: 800px;">
         <button class="close-modal-btn" id="close-map-btn">×</button>
-        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ 大学 (University) 校园宏观大地图</h2>
+        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ Google Maps 1:3 比例真实校园地图 (1单位 = 3米)</h2>
         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
-          按校园方位测绘：南大门 Chancellor Hall、东侧山脊长城石阶与语言中心、西侧体育中心、东北端学生公寓市集、中央餐厅与湖畔清真寺。<strong>点击任意站点即可直接传送前往！</strong>
+          基于 Google Maps 真实经纬度与 Plus Code 解码测绘（以中央图书馆为原点，按 <strong>1:3 比例</strong>等比缩小）：还原真实建筑相对方位、道路走向与距离比例。<strong>点击任意站点即可直接传送！</strong>
         </p>
         <div style="width: 100%; height: 390px; background: #020617; border: 2px solid #334155; border-radius: 8px; overflow: hidden;">
           <canvas id="full-map-canvas" width="760" height="390" style="width: 100%; height: 100%; display: block;"></canvas>
@@ -312,23 +329,63 @@
       </div>
     </div>
 
+    <!-- Modal 4: Character Sheet & Fashion Wardrobe (角色与时装系统) -->
+    <div class="modal-overlay" id="character-modal" style="z-index: 120;">
+      <div class="mc-window" style="max-width: 760px;">
+        <button class="close-modal-btn" id="close-char-btn">×</button>
+        <h2 style="font-size: 18px; margin-bottom: 8px; color: #facc15;">👤 角色中心与时装衣橱 (Character &amp; Wardrobe)</h2>
+        <div class="char-tabs">
+          <button class="char-tab-btn active" id="tab-btn-stats" onclick="switchCharTab('stats')">📊 角色档案 (Profile &amp; Stats)</button>
+          <button class="char-tab-btn" id="tab-btn-wardrobe" onclick="switchCharTab('wardrobe')">👕 时装衣橱 (Outfits &amp; Hats)</button>
+        </div>
+
+        <div class="char-layout">
+          <div class="char-preview-card">
+            <canvas id="char-preview-canvas" width="180" height="220"></canvas>
+            <div style="font-size:14px;font-weight:800;color:#facc15;" id="char-preview-name">Jun (郑国君)</div>
+            <div style="font-size:11px;color:#93c5fd;margin-top:2px;" id="char-preview-outfit-label">当前穿戴：经典青衫</div>
+            <button class="mini-action-btn" style="margin-top:8px;width:100%;" onclick="toggleThirdPersonCamera(); toggleCharacterModal(false);">🎥 切第三人称看外观 [V]</button>
+          </div>
+
+          <div>
+            <div id="char-panel-stats">
+              <div style="margin-bottom:10px;">
+                <label style="font-size:12px;color:#94a3b8;display:block;margin-bottom:4px;">角色昵称 (Character Name):</label>
+                <input id="char-name-input" type="text" value="Jun (郑国君)" style="width:100%;padding:7px 10px;border-radius:6px;border:1.5px solid #475569;background:#1e293b;color:#fff;font-size:13px;" />
+              </div>
+              <div class="char-stat-row"><span>🎖️ 当前等级 (Level)</span><strong id="stat-level" style="color:#4ade80;">Lv. 1</strong></div>
+              <div class="char-stat-row"><span>🏆 主线通关进度 (Acts Cleared)</span><strong id="stat-acts" style="color:#facc15;">0 / 5</strong></div>
+              <div class="char-stat-row"><span>👕 已穿戴时装 (Equipped Outfit)</span><strong id="stat-outfit" style="color:#38bdf8;">经典青衫</strong></div>
+              <div class="char-stat-row"><span>⚡ 移动速度 (Move Speed)</span><strong id="stat-speed">18 u/s</strong></div>
+              <div class="char-stat-row"><span>📍 当前真实坐标 (1:3 Scale)</span><strong id="stat-coords" style="font-family:monospace;">X: 0, Z: 15</strong></div>
+            </div>
+
+            <div id="char-panel-wardrobe" style="display:none;">
+              <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">点击任意时装即可立即换装！换装后会实时同步到<strong>第一人称衣袖</strong>、<strong>第三人称 3D 全身模型</strong>与<strong>角色预览</strong>。</p>
+              <div class="wardrobe-grid" id="wardrobe-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Start Overlay -->
     <div id="start-screen-overlay">
       <h1 style="font-size:28px;color:#facc15;font-weight:900;">My University Adventure - Pixel</h1>
-      <p style="font-size:14px;color:#94a3b8;margin-top:6px;">University · 3D 立体导师 · 长城石阶地形 · 5 大实体互动关卡</p>
+      <p style="font-size:14px;color:#94a3b8;margin-top:6px;">Google Maps 1:3 比例真实校园测绘 · 角色属性与时装系统 · 5 大实体互动关卡</p>
       <button class="start-play-btn" id="start-game-btn">进入大学校园 (ENTER CAMPUS)</button>
       <div class="control-guide-box">
         <p style="font-weight:bold;color:#facc15;margin-bottom:6px;">🎮 操作指南 (Controls):</p>
         <p>• <strong>W / A / S / D</strong> 或 <strong>方向键</strong>：移动 | <strong>Space</strong>：跳跃 | <strong>鼠标移动</strong>：环顾视角</p>
         <p>• <strong>E 键</strong>：与 3D 导师 NPC 对话，体验毛笔笔画板 / 射靶 / 货币付款 / 量词合成 / 结业证书</p>
         <p>• <strong>1 - 6 数字键</strong>：触发 6 大中文学习辅助道具（罗盘 / 四声透视 / 生词本 / 排错笔 / 慢速复读 / 椰浆饭）</p>
-        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开大学校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
+        <p>• <strong>C 键</strong>：打开角色属性与时装衣橱 | <strong>V 键</strong>：切换第一/第三人称视角（查看时装外观）</p>
+        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开 1:3 Google Maps 校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
       </div>
     </div>
   </div>
 
   <script>
-    // 1. Web Audio API 音效引擎 & 语音朗读
     class SoundEngine {
       constructor() { this.ctx = null; this.enabled = true; }
       init() {
@@ -382,7 +439,7 @@
       }
     }
 
-    function showMinecraftToast(msg, icon = '🎖️') {
+    function showPixelToast(msg, icon = '🎖️') {
       const t = document.getElementById('mc-toast');
       document.getElementById('toast-icon').textContent = icon;
       document.getElementById('toast-msg').textContent = msg;
@@ -391,13 +448,12 @@
       t._timer = setTimeout(() => { t.style.display = 'none'; }, 3200);
     }
 
-    // 2. University 校园真实地标注册表 (支持外部 ./data/quests.json 热更新)
     const UNI_CAMPUS_REGISTRY = [
       {
         id: 'LC', name: 'Language Centre',
         nameCn: '<ruby>语<rt>yǔ</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby> · <ruby>第<rt>dì</rt></ruby><ruby>八<rt>bā</rt></ruby><ruby>研<rt>yán</rt></ruby><ruby>讨<rt>tǎo</rt></ruby><ruby>室<rt>shì</rt></ruby>',
-        desc: '位于校园东侧山脊高地，需攀登标志性“长城石阶”到达。',
-        x: 135, z: 30, color: '#3b82f6', beaconColor: 0x3b82f6, type: 'active', act: 1, icon: '🏛️', unlocked: true, completed: false,
+        desc: 'Google Maps 1:3 比例测绘：位于图书馆东偏南 354m 山脊高地，需攀登“长城石阶”到达。',
+        x: 115.6, z: 23.1, color: '#3b82f6', beaconColor: 0x3b82f6, type: 'active', act: 1, icon: '🏛️', unlocked: true, completed: false,
         npc: { name: '<ruby>王<rt>wáng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby> (Teacher Wang)', role: '大学语言中心 · 中文讲师', avatar: '👨‍🏫' },
         learning: {
           topic: 'Act 1: <ruby>语<rt>yǔ</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>四<rt>sì</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>汉<rt>hàn</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>画<rt>huà</rt></ruby>',
@@ -405,45 +461,25 @@
           englishTranslation: '"Hello students! Welcome up the Great Wall Stairs to the Language Centre."',
           keyVocab: '💡 <ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby> (Pinyin) | <ruby>声<rt>shēng</rt></ruby><ruby>调<rt>diào</rt></ruby> (Tones) | <ruby>横<rt>héng</rt></ruby> (一) | <ruby>竖<rt>shù</rt></ruby> (丨)',
           quizzes: [
-            {
-              question: '<ruby>汉<rt>hàn</rt></ruby><ruby>语<rt>yǔ</rt></ruby><ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>基<rt>jī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>调<rt>diào</rt></ruby>？',
-              englishPrompt: '[How many basic tones are there in Hanyu Pinyin?]',
-              options: ['两个声调 (2 tones)', '四个声调 (4 tones: ¯ ˊ ˇ ˋ)', '六个声调 (6 tones)', '八个声调 (8 tones)'],
-              correct: 1, explain: '普通话共有四个基本声调：第一声(¯)、第二声(ˊ)、第三声(ˇ)、第四声(ˋ)。'
-            },
-            {
-              question: '“<ruby>十<rt>shí</rt></ruby>”<ruby>字<rt>zì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？',
-              englishPrompt: '[What is the first stroke of "十" (shí)?]',
-              options: ['<ruby>横<rt>héng</rt></ruby> (Horizontal 一)', '<ruby>竖<rt>shù</rt></ruby> (Vertical 丨)', '<ruby>撇<rt>piě</rt></ruby> (Slash 丿)', '<ruby>捺<rt>nà</rt></ruby> (Press ㇏)'],
-              correct: 0, explain: '根据汉字“先横后竖”规则，“十”先写一横，再写一竖。'
-            }
+            { question: '<ruby>汉<rt>hàn</rt></ruby><ruby>语<rt>yǔ</rt></ruby><ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>基<rt>jī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>调<rt>diào</rt></ruby>？', englishPrompt: '[How many basic tones are there in Hanyu Pinyin?]', options: ['两个声调 (2 tones)', '四个声调 (4 tones: ¯ ˊ ˇ ˋ)', '六个声调 (6 tones)', '八个声调 (8 tones)'], correct: 1, explain: '普通话共有四个基本声调：第一声(¯)、第二声(ˊ)、第三声(ˇ)、第四声(ˋ)。' },
+            { question: '“<ruby>十<rt>shí</rt></ruby>”<ruby>字<rt>zì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？', englishPrompt: '[What is the first stroke of "十" (shí)?]', options: ['<ruby>横<rt>héng</rt></ruby> (Horizontal 一)', '<ruby>竖<rt>shù</rt></ruby> (Vertical 丨)', '<ruby>撇<rt>piě</rt></ruby> (Slash 丿)', '<ruby>捺<rt>nà</rt></ruby> (Press ㇏)'], correct: 0, explain: '根据汉字“先横后竖”规则，“十”先写一横，再写一竖。' }
           ]
         }
       },
       {
         id: 'SPORTS', name: 'University Sports Complex',
         nameCn: '<ruby>综<rt>zōng</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>育<rt>yù</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby>',
-        desc: '校园西侧大型体育馆与田径场，学习动作口令与身体部位。',
-        x: -220, z: -35, color: '#10b981', beaconColor: 0x10b981, type: 'active', act: 2, icon: '⚽', unlocked: false, completed: false,
-        npc: { name: '<ruby>陈<rt>chén</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>练<rt>liàn</rt></ruby> (Coach Chen)', role: '大学体育中心总教练', avatar: '🥋' },
+        desc: 'Google Maps 1:3 比例测绘：位于图书馆西偏北 745m 的大型体育馆与田径场。',
+        x: -244.9, z: -41.5, color: '#10b981', beaconColor: 0x10b981, type: 'active', act: 2, icon: '⚽', unlocked: false, completed: false,
+        npc: { name: '<ruby>陈<rt>chén</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>练<rt>liàn</rt></ruby> (Coach Chen)', role: 'University 体育中心总教练', avatar: '🥋' },
         learning: {
           topic: 'Act 2: <ruby>动<rt>dòng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>指<rt>zhǐ</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby>',
           dialogue: '<ruby>各<rt>gè</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>运<rt>yùn</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>集<rt>jí</rt></ruby><ruby>合<rt>hé</rt></ruby>！<ruby>听<rt>tīng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>口<rt>kǒu</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>射<rt>shè</rt></ruby><ruby>靶<rt>bǎ</rt></ruby>！',
           englishTranslation: '"Athletes, fall in! Follow my Chinese commands and hit the targets!"',
           keyVocab: '💡 <ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby> (Turn left) | <ruby>快<rt>kuài</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby> (Run) | <ruby>脚<rt>jiǎo</rt></ruby> (Foot)',
           quizzes: [
-            {
-              question: '“<ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>快<rt>kuài</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby>？',
-              englishPrompt: '[What do "向左转" and "快点跑" mean?]',
-              options: ['Turn right and walk', 'Turn left and run quickly', 'Jump up and stop', 'Sit down'],
-              correct: 1, explain: '“向左转”是 Turn left，“快点跑”是 Run quickly。'
-            },
-            {
-              question: '<ruby>足<rt>zú</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>踢<rt>tī</rt></ruby>？',
-              englishPrompt: '[Which body part is used to kick a football?]',
-              options: ['<ruby>手<rt>shǒu</rt></ruby> (Hand)', '<ruby>头<rt>tóu</rt></ruby> (Head)', '<ruby>脚<rt>jiǎo</rt></ruby> (Foot)', '<ruby>眼<rt>yǎn</rt></ruby><ruby>睛<rt>jing</rt></ruby> (Eyes)'],
-              correct: 2, explain: '踢足球主要用“脚”(jiǎo)。'
-            }
+            { question: '“<ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>快<rt>kuài</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby>？', englishPrompt: '[What do "向左转" and "快点跑" mean?]', options: ['Turn right and walk', 'Turn left and run quickly', 'Jump up and stop', 'Sit down'], correct: 1, explain: '“向左转”是 Turn left，“快点跑”是 Run quickly。' },
+            { question: '<ruby>足<rt>zú</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>踢<rt>tī</rt></ruby>？', englishPrompt: '[Which body part is used to kick a football?]', options: ['<ruby>手<rt>shǒu</rt></ruby> (Hand)', '<ruby>头<rt>tóu</rt></ruby> (Head)', '<ruby>脚<rt>jiǎo</rt></ruby> (Foot)', '<ruby>眼<rt>yǎn</rt></ruby><ruby>睛<rt>jing</rt></ruby> (Eyes)'], correct: 2, explain: '踢足球主要用“脚”(jiǎo)。' }
           ]
         }
       },
@@ -456,56 +492,36 @@
         learning: {
           topic: 'Act 3: <ruby>数<rt>shù</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>货<rt>huò</rt></ruby><ruby>币<rt>bì</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby>',
           dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>社<rt>shè</rt></ruby>！<ruby>请<rt>qǐng</rt></ruby><ruby>付<rt>fù</rt></ruby><ruby>款<rt>kuǎn</rt></ruby>。',
-          englishTranslation: '"Welcome to the Campus Co-op! Let us practice paying in dollars and cents."',
+          englishTranslation: '"Welcome to Campus Co-op! Let us practice paying in dollars and cents."',
           keyVocab: '💡 <ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby> (How much) | <ruby>块<rt>kuài</rt></ruby> ($) | <ruby>毛<rt>máo</rt></ruby> (10¢)',
           quizzes: [
-            {
-              question: '“<ruby>请<rt>qǐng</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>？”<ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：',
-              englishPrompt: '[What does "请问这本书多少钱？" mean?]',
-              options: ['Where is this book?', 'Excuse me, how much is this book?', 'May I borrow it?', 'Who wrote it?'],
-              correct: 1, explain: '“请问”是 Excuse me，“多少钱”是 How much。'
-            },
-            {
-              question: '“<ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby>？',
-              englishPrompt: '[What amount is "十五块五毛钱"?]',
-              options: ['$10.50', '$15.05', '$15.50', '$50.15'],
-              correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50。'
-            }
+            { question: '“<ruby>请<rt>qǐng</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>？”<ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "请问这本书多少钱？" mean?]', options: ['Where is this book?', 'Excuse me, how much is this book?', 'May I borrow it?', 'Who wrote it?'], correct: 1, explain: '“请问”是 Excuse me，“多少钱”是 How much。' },
+            { question: '“<ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby>？', englishPrompt: '[What amount is "十五块五毛钱"?]', options: ['$10.50', '$15.05', '$15.50', '$50.15'], correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50。' }
           ]
         }
       },
       {
         id: 'DINING', name: 'University Student Canteen',
         nameCn: '<ruby>餐<rt>cān</rt></ruby><ruby>厅<rt>tīng</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>谱<rt>pǔ</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>坊<rt>fāng</rt></ruby>',
-        desc: '中央生活区风味餐厅，使用量词工作台合成椰浆饭、干捞面与拉茶。',
-        x: -35, z: -45, color: '#ec4899', beaconColor: 0xec4899, type: 'active', act: 4, icon: '🍜', unlocked: false, completed: false,
-        npc: { name: '<ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>傅<rt>fu</rt></ruby> (Chef Ah Ming)', role: '大学餐厅主厨', avatar: '👨‍🍳' },
+        desc: 'Google Maps 1:3 比例测绘：位于图书馆正北 221m 的学生活动中心与餐厅大厅。',
+        x: 4.6, z: -73.7, color: '#ec4899', beaconColor: 0xec4899, type: 'active', act: 4, icon: '🍜', unlocked: false, completed: false,
+        npc: { name: '<ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>傅<rt>fu</rt></ruby> (Chef Ah Ming)', role: 'University 餐厅主厨', avatar: '👨‍🍳' },
         learning: {
           topic: 'Act 4: <ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>餐<rt>cān</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby>',
           dialogue: '<ruby>请<rt>qǐng</rt></ruby><ruby>坐<rt>zuò</rt></ruby>！<ruby>用<rt>yòng</rt></ruby><ruby>正<rt>zhèng</rt></ruby><ruby>确<rt>què</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>吧<rt>ba</rt></ruby>！',
           englishTranslation: '"Take a seat! Combine the right measure words with local dishes!"',
           keyVocab: '💡 <ruby>一<rt>yī</rt></ruby><ruby>碗<rt>wǎn</rt></ruby><ruby>面<rt>miàn</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>杯<rt>bēi</rt></ruby><ruby>茶<rt>chá</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>盘<rt>pán</rt></ruby><ruby>饭<rt>fàn</rt></ruby> | <ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>',
           quizzes: [
-            {
-              question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>要<rt>yào</rt></ruby>一___<ruby>干<rt>gān</rt></ruby><ruby>捞<rt>lāo</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>和<rt>hé</rt></ruby>一___<ruby>拉<rt>lā</rt></ruby><ruby>茶<rt>chá</rt></ruby>”<ruby>应<rt>yīng</rt></ruby><ruby>填<rt>tián</rt></ruby>：',
-              englishPrompt: '[Choose the correct measure words for noodles and tea:]',
-              options: ['张 / 条', '碗 / 杯 (bowl / cup)', '块 / 个', '双 / 只'],
-              correct: 1, explain: '面用“一碗面”，茶用“一杯茶”。'
-            },
-            {
-              question: '“<ruby>服<rt>fú</rt></ruby><ruby>务<rt>wù</rt></ruby><ruby>员<rt>yuán</rt></ruby>，<ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>！”<ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：',
-              englishPrompt: '[What does "服务员，买单！" mean?]',
-              options: ['Bring the menu', 'The bill please!', 'More water', 'Food is cold'],
-              correct: 1, explain: '“买单”即请求结账付款 (The bill please)。'
-            }
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>要<rt>yào</rt></ruby>一___<ruby>干<rt>gān</rt></ruby><ruby>捞<rt>lāo</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>和<rt>hé</rt></ruby>一___<ruby>拉<rt>lā</rt></ruby><ruby>茶<rt>chá</rt></ruby>”<ruby>应<rt>yīng</rt></ruby><ruby>填<rt>tián</rt></ruby>：', englishPrompt: '[Choose the correct measure words for noodles and tea:]', options: ['张 / 条', '碗 / 杯 (bowl / cup)', '块 / 个', '双 / 只'], correct: 1, explain: '面用“一碗面”，茶用“一杯茶”。' },
+            { question: '“<ruby>服<rt>fú</rt></ruby><ruby>务<rt>wù</rt></ruby><ruby>员<rt>yuán</rt></ruby>，<ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>！”<ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：', englishPrompt: '[What does "服务员，买单！" mean?]', options: ['Bring the menu', 'The bill please!', 'More water', 'Food is cold'], correct: 1, explain: '“买单”即请求结账付款 (The bill please)。' }
           ]
         }
       },
       {
         id: 'CHANCELLOR', name: 'Chancellor Hall',
         nameCn: '<ruby>总<rt>zǒng</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>礼<rt>lǐ</rt></ruby><ruby>堂<rt>táng</rt></ruby> · <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>典<rt>diǎn</rt></ruby>',
-        desc: '南大门金色四层金字塔殿堂，完成终极测评并领取 PNG 结业证书。',
-        x: -95, z: 110, color: '#eab308', beaconColor: 0xeab308, type: 'active', act: 5, icon: '🎓', unlocked: false, completed: false,
+        desc: 'Google Maps 1:3 比例测绘：位于西南南大门 313m 处的金色四层金字塔殿堂。',
+        x: -73.9, z: 73.8, color: '#eab308', beaconColor: 0xeab308, type: 'active', act: 5, icon: '🎓', unlocked: false, completed: false,
         npc: { name: '<ruby>郑<rt>zhèng</rt></ruby><ruby>副<rt>fù</rt></ruby><ruby>校<rt>xiào</rt></ruby><ruby>长<rt>zhǎng</rt></ruby> (Vice-Chancellor)', role: '大学副校长', avatar: '🎖️' },
         learning: {
           topic: 'Act 5: <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>典<rt>diǎn</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>颁<rt>bān</rt></ruby><ruby>发<rt>fā</rt></ruby>',
@@ -513,30 +529,18 @@
           englishTranslation: '"Congratulations on reaching Chancellor Hall! Download your certificate after the capstone quiz."',
           keyVocab: '💡 <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby> (Graduation) | <ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>',
           quizzes: [
-            {
-              question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>为<rt>wéi</rt></ruby>：',
-              englishPrompt: '[Choose the English meaning:]',
-              options: ['I teach English at University', 'I study Chinese at University', 'I am on holiday', 'I work at Chancellor Hall'],
-              correct: 1, explain: '“我在大学学习中文”意为 I study Chinese at University。'
-            },
-            {
-              question: '<ruby>向<rt>xiàng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：',
-              englishPrompt: '[How do you sincerely thank your teacher at convocation?]',
-              options: ['对不起 (Sorry)', '没关系 (No problem)', '谢谢老师，您辛苦了！', '明天见 (See you tomorrow)'],
-              correct: 2, explain: '“谢谢老师，您辛苦了！”是最得体的尊师致谢表达。'
-            }
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>为<rt>wéi</rt></ruby>：', englishPrompt: '[Choose the English meaning:]', options: ['I teach English at University', 'I study Chinese at University', 'I am on holiday', 'I work at Chancellor Hall'], correct: 1, explain: '“我在大学学习中文”意为 I study Chinese at University。' },
+            { question: '<ruby>向<rt>xiàng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：', englishPrompt: '[How do you sincerely thank your teacher at convocation?]', options: ['对不起 (Sorry)', '没关系 (No problem)', '谢谢老师，您辛苦了！', '明天见 (See you tomorrow)'], correct: 2, explain: '“谢谢老师，您辛苦了！”是最得体的尊师致谢表达。' }
           ]
         }
       },
-      // 5 Future Extension Landmarks
-      { id: 'LIBRARY', name: 'University Central Library', nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>', desc: '校园中心文献大楼（可在 data/quests.json 中激活）。', x: 0, z: -18, color: '#6366f1', beaconColor: 0x6366f1, type: 'future', act: null, icon: '📚', npc: { name: '馆长助理', role: '图书馆顾问', avatar: '👩‍🏫' }, futureFeature: '学术文献检索中文模块' },
-      { id: 'FASS', name: 'Faculty of Arts & Social Sciences', nameCn: '<ruby>人<rt>rén</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '红砖庭院教学楼（预留拓展区）。', x: -65, z: -5, color: '#8b5cf6', beaconColor: 0x8b5cf6, type: 'future', act: null, icon: '🎭', npc: { name: '人文讲师', role: 'FASS 学者', avatar: '👨‍🏫' }, futureFeature: '跨文化文学与历史中文模块' },
+      { id: 'LIBRARY', name: 'University Central Library', nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>', desc: '校园中心原点坐标 (0, 0) 文献大楼（可在 data/quests.json 中激活）。', x: 0, z: 0, color: '#6366f1', beaconColor: 0x6366f1, type: 'future', act: null, icon: '📚', npc: { name: '馆长助理', role: '图书馆顾问', avatar: '👩‍🏫' }, futureFeature: '学术文献检索中文模块' },
+      { id: 'FASS', name: 'Faculty of Arts & Social Sciences', nameCn: '<ruby>人<rt>rén</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '图书馆西侧 153m 红砖庭院教学楼（预留拓展区）。', x: -50.9, z: -4.7, color: '#8b5cf6', beaconColor: 0x8b5cf6, type: 'future', act: null, icon: '🎭', npc: { name: '人文讲师', role: 'FASS 学者', avatar: '👨‍🏫' }, futureFeature: '跨文化文学与历史中文模块' },
       { id: 'FOS', name: 'Faculty of Science', nameCn: '<ruby>理<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '自然科学实验楼群（预留拓展区）。', x: 65, z: -75, color: '#14b8a6', beaconColor: 0x14b8a6, type: 'future', act: null, icon: '🔬', npc: { name: '李博士', role: '热带生态研究员', avatar: '👨‍🔬' }, futureFeature: '环境科技汉语模块' },
       { id: 'IHS', name: 'Institute of Health Sciences', nameCn: '<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '医学院大楼（预留拓展区）。', x: 130, z: -60, color: '#06b6d4', beaconColor: 0x06b6d4, type: 'future', act: null, icon: '🩺', npc: { name: 'Dr. Nurul', role: '临床导师', avatar: '👩‍⚕️' }, futureFeature: '医护问诊中文模块' },
       { id: 'MOSQUE', name: 'University Mosque', nameCn: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>', desc: '北部景观湖畔清真寺（预留拓展区）。', x: 55, z: -160, color: '#84cc16', beaconColor: 0x84cc16, type: 'future', act: null, icon: '🕌', npc: { name: '文化学者', role: '文化遗产中心', avatar: '👳‍♂️' }, futureFeature: '传统文化交流模块' }
     ];
 
-    // 3. 6 大中文学习辅助道具与生词本词库
     const LEARNING_PROPS = [
       { slot: 1, id: 'compass', name: '寻路罗盘', icon: '🧭', color: 0xfacc15, badge: '导航', desc: '自动转向当前主线建筑并一键传送至目标门口' },
       { slot: 2, id: 'tonelens', name: '声调透视', icon: '🔍', color: 0x38bdf8, badge: '四声', desc: '开启/关闭四声色彩高亮（一声蓝·二声绿·三声黄·四声红）' },
@@ -559,10 +563,8 @@
       { act: 5, word: '<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>', raw: '谢谢老师', pinyin: 'xiè xie lǎo shī', en: 'Thank you, Teacher', ex: '谢谢老师，您辛苦了！' }
     ];
 
-    // 4. Three.js 场景与程序化体素贴图
     let scene, camera, renderer, playerHandGroup, heldItemMesh, waterMeshRef, cloudsGroup;
-    const campusNPCs = [];
-    const voxelParticles = [];
+    const campusNPCs = [], voxelParticles = [];
     let currentPropIdx = 0, isToneLensActive = false, lightingModeIndex = 0;
     let currentActiveQuizStation = null, currentActiveQuizIndex = 0, activeStationNear = null, isPointerLocked = false;
 
@@ -576,8 +578,8 @@
     ];
 
     function getTerrainHeightAt(x, z) {
-      if (x >= 122 && x <= 165 && z >= -5 && z <= 65) return 4.2;
-      if (x >= 90 && x < 122 && z >= 14 && z <= 38) return ((x - 90) / 32) * 4.2;
+      if (x >= 102 && x <= 145 && z >= -10 && z <= 58) return 4.2;
+      if (x >= 72 && x < 102 && z >= 10 && z <= 36) return ((x - 72) / 30) * 4.2;
       return 0;
     }
 
@@ -623,17 +625,30 @@
       waterMeshRef.position.set(15, 0.08, -150);
       scene.add(waterMeshRef);
 
-      const roadMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-      const r1 = new THREE.Mesh(new THREE.BoxGeometry(360, 0.06, 10), roadMat); r1.position.set(-40, 0.03, -25); scene.add(r1);
-      const r2 = new THREE.Mesh(new THREE.BoxGeometry(10, 0.06, 280), roadMat); r2.position.set(0, 0.03, -20); scene.add(r2);
-      const rSouth = new THREE.Mesh(new THREE.BoxGeometry(12, 0.06, 140), roadMat); rSouth.position.set(-50, 0.03, 55); rSouth.rotation.y = 0.65; scene.add(rSouth);
+      function addCampusRoadSegment(x1, z1, x2, z2, width = 9) {
+        const len = Math.hypot(x2 - x1, z2 - z1);
+        const road = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, width), new THREE.MeshLambertMaterial({ color: 0x334155 }));
+        road.position.set((x1 + x2) / 2, 0.03, (z1 + z2) / 2);
+        road.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
+        scene.add(road);
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(len, 0.07, 0.45), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+        stripe.position.set((x1 + x2) / 2, 0.04, (z1 + z2) / 2);
+        stripe.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
+        scene.add(stripe);
+      }
+      addCampusRoadSegment(-73.9, 73.8, 0, 0, 10);
+      addCampusRoadSegment(0, 0, -244.9, -41.5, 9);
+      addCampusRoadSegment(0, 0, 4.6, -73.7, 9);
+      addCampusRoadSegment(4.6, -73.7, 55, -160, 8);
+      addCampusRoadSegment(0, 0, 72, 23, 8);
+      addCampusRoadSegment(65, -75, 150, -250, 10);
 
-      const ridge = new THREE.Mesh(new THREE.BoxGeometry(44, 4.2, 70), new THREE.MeshLambertMaterial({ map: grassTex }));
-      ridge.position.set(144, 2.1, 30);
+      const ridge = new THREE.Mesh(new THREE.BoxGeometry(44, 4.2, 68), new THREE.MeshLambertMaterial({ map: grassTex }));
+      ridge.position.set(123.5, 2.1, 24);
       scene.add(ridge);
       for (let i = 0; i < 16; i++) {
         const step = new THREE.Mesh(new THREE.BoxGeometry(2.2, (i + 1) * (4.2 / 16), 22), new THREE.MeshLambertMaterial({ map: stoneTex }));
-        step.position.set(90 + i * 2.0, ((i + 1) * (4.2 / 16)) / 2, 26);
+        step.position.set(72 + i * 1.9, ((i + 1) * (4.2 / 16)) / 2, 23);
         scene.add(step);
       }
 
@@ -698,6 +713,7 @@
 
       buildAllCampusVoxelNPCs();
       buildPlayerFirstPersonArm();
+      buildThirdPersonAvatar();
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -787,10 +803,9 @@
       });
       document.getElementById('toggle-lighting-btn').querySelector('span:first-child').textContent = p.icon;
       document.getElementById('lighting-mode-label').textContent = p.name;
-      showMinecraftToast(`已切换校园光影：${p.icon} ${p.name.replace(' [L]', '')}`, p.icon);
+      showPixelToast(`已切换校园光影：${p.icon} ${p.name.replace(' [L]', '')}`, p.icon);
     }
 
-    // 5. Controls & Physics
     function initInputControls() {
       window.addEventListener('keydown', e => {
         audio.init();
@@ -810,6 +825,8 @@
         if (c === 'KeyE') triggerInteractWithNearest();
         if (c === 'KeyM') toggleCampusMapModal();
         if (c === 'KeyL') cycleCampusLighting();
+        if (c === 'KeyC') toggleCharacterModal();
+        if (c === 'KeyV') toggleThirdPersonCamera();
         if (c === 'Escape') closeAllModals();
       });
       window.addEventListener('keyup', e => {
@@ -865,8 +882,21 @@
       const gh = 1.7 + getTerrainHeightAt(player.pos.x, player.pos.z);
       if (player.pos.y <= gh) { player.pos.y = gh; player.vel.y = 0; player.onGround = true; }
 
-      camera.position.copy(player.pos);
-      camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch;
+      if (isThirdPerson && thirdPersonAvatarGroup) {
+        thirdPersonAvatarGroup.position.set(player.pos.x, player.pos.y - 1.7, player.pos.z);
+        thirdPersonAvatarGroup.rotation.y = player.yaw + Math.PI;
+        if (avatarParts.legL) {
+          const swing = move.lengthSq() > 0 ? Math.sin(player.stepTimer * 2) * 0.45 : 0;
+          avatarParts.legL.rotation.x = swing; avatarParts.legR.rotation.x = -swing;
+          avatarParts.armL.rotation.x = -swing; avatarParts.armR.rotation.x = swing;
+        }
+        const camBack = new THREE.Vector3(0, 1.4, 5.2).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.yaw);
+        camera.position.copy(player.pos).add(camBack);
+        camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch - 0.15;
+      } else {
+        camera.position.copy(player.pos);
+        camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch;
+      }
 
       if (playerHandGroup) {
         playerHandGroup.position.y = -0.32 + (move.lengthSq() > 0 ? Math.sin(player.stepTimer) * 0.035 : 0);
@@ -886,7 +916,7 @@
         if (d < minDist) { minDist = d; nearest = st; }
       });
       const zl = document.getElementById('current-zone-label');
-      zl.innerHTML = (nearest && minDist < 36) ? `📍 当前区域: <strong>${nearest.nameCn}</strong> (${nearest.name})` : '📍 当前区域: 大学中央校道环岛 (Main Roundabout)';
+      zl.innerHTML = (nearest && minDist < 36) ? `📍 当前区域: <strong>${nearest.nameCn}</strong> (${nearest.name})` : '📍 当前区域: University 中央校道环岛 (Main Roundabout)';
 
       const cur = UNI_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed);
       if (cur) document.getElementById('hud-quest-dist').textContent = `距离: ${Math.round(Math.hypot(player.pos.x - cur.x, player.pos.z - cur.z))}m`;
@@ -899,9 +929,8 @@
       } else { activeStationNear = null; pe.style.display = 'none'; }
     }
 
-    // 6. 5-Act Interactive Mini-Games & Quizzes
     function triggerInteractWithNearest() {
-      if (!activeStationNear) { showMinecraftToast('请走近地标建筑门口，或按 [1] 使用寻路罗盘一键导航！', '🧭'); return; }
+      if (!activeStationNear) { showPixelToast('请走近地标建筑门口，或按 [1] 使用寻路罗盘一键导航！', '🧭'); return; }
       audio.playVillager();
       const st = activeStationNear;
       const modal = document.getElementById('station-dialog-modal');
@@ -943,22 +972,7 @@
       if (station.id === 'LC') {
         const chars = [{ ch: '十', py: 'shí (Ten)', strokes: 2, tip: '先横 (一) 后竖 (丨)' }, { ch: '人', py: 'rén (Person)', strokes: 2, tip: '先撇 (丿) 后捺 (㇏)' }, { ch: '大', py: 'dà (Big)', strokes: 3, tip: '横 → 撇 → 捺' }];
         let cIdx = 0, drawn = 0;
-        zone.innerHTML = `
-          <div class="interactive-minigame-card">
-            <div class="minigame-header"><span>🖌️ 实体互动 1：毛笔汉字笔画临摹板</span><span class="minigame-badge" id="stroke-status-badge">笔画: 0 / 2</span></div>
-            <div class="stroke-pad-wrap">
-              <canvas id="stroke-canvas" width="150" height="150"></canvas>
-              <div style="flex:1;min-width:180px;font-size:12.5px;line-height:1.55;">
-                <div style="font-weight:800;font-size:15px;">当前临摹：<span id="stroke-target-label"></span></div>
-                <div id="stroke-rule-tip" style="color:#93c5fd;margin:4px 0;"></div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-                  <button class="mini-action-btn secondary" id="stroke-clear-btn">重写</button>
-                  <button class="mini-action-btn" id="stroke-next-char-btn">换字 ➔</button>
-                  <button class="mini-action-btn success" id="stroke-speak-btn">🔊 读音</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
+        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🖌️ 实体互动 1：毛笔汉字笔画临摹板</span><span class="minigame-badge" id="stroke-status-badge">笔画: 0 / 2</span></div><div class="stroke-pad-wrap"><canvas id="stroke-canvas" width="150" height="150"></canvas><div style="flex:1;min-width:180px;font-size:12.5px;line-height:1.55;"><div style="font-weight:800;font-size:15px;">当前临摹：<span id="stroke-target-label"></span></div><div id="stroke-rule-tip" style="color:#93c5fd;margin:4px 0;"></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"><button class="mini-action-btn secondary" id="stroke-clear-btn">重写</button><button class="mini-action-btn" id="stroke-next-char-btn">换字 ➔</button><button class="mini-action-btn success" id="stroke-speak-btn">🔊 读音</button></div></div></div></div>`;
         const canvas = document.getElementById('stroke-canvas'), ctx = canvas.getContext('2d');
         let drawing = false;
         function drawGuide() {
@@ -974,7 +988,7 @@
         const getP = e => { const r = canvas.getBoundingClientRect(), pt = e.touches ? e.touches[0] : e; return { x: (pt.clientX - r.left)*(150/r.width), y: (pt.clientY - r.top)*(150/r.height) }; };
         const sD = e => { e.preventDefault(); drawing = true; const p = getP(e); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(p.x, p.y); };
         const mD = e => { if (!drawing) return; e.preventDefault(); const p = getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-        const eD = () => { if (!drawing) return; drawing = false; drawn++; document.getElementById('stroke-status-badge').textContent = `笔画: ${drawn} / ${chars[cIdx].strokes}`; if (drawn === chars[cIdx].strokes) { audio.playDing(); showMinecraftToast(`🖌️ 已完成「${chars[cIdx].ch}」字临摹！`, '🖌️'); speakChinese(chars[cIdx].ch); } };
+        const eD = () => { if (!drawing) return; drawing = false; drawn++; document.getElementById('stroke-status-badge').textContent = `笔画: ${drawn} / ${chars[cIdx].strokes}`; if (drawn === chars[cIdx].strokes) { audio.playDing(); showPixelToast(`🖌️ 已完成「${chars[cIdx].ch}」字临摹！`, '🖌️'); speakChinese(chars[cIdx].ch); } };
         canvas.addEventListener('mousedown', sD); canvas.addEventListener('mousemove', mD); window.addEventListener('mouseup', eD);
         canvas.addEventListener('touchstart', sD); canvas.addEventListener('touchmove', mD); window.addEventListener('touchend', eD);
         document.getElementById('stroke-clear-btn').onclick = () => { drawn = 0; drawGuide(); };
@@ -997,7 +1011,7 @@
                 audio.playDing(); hits++; document.getElementById('archery-score-badge').textContent = `命中: ${hits} / 3`;
                 if (hits < 3) { speakChinese(drills[hits].cmd); spawnT(); }
                 else { arena.innerHTML = '<div style="color:#86efac;font-weight:bold;text-align:center;padding-top:50px;">🏆 全部 3 个口令靶命中！</div>'; }
-              } else showMinecraftToast('❌ 射偏啦！请看清口令再射！', '🎯');
+              } else showPixelToast('❌ 射偏啦！请看清口令再射！', '🎯');
             };
             arena.appendChild(b);
           });
@@ -1012,8 +1026,8 @@
           btn.onclick = () => {
             paid = Math.round((paid + parseFloat(btn.dataset.val)) * 100) / 100;
             b.textContent = `已付: $${paid.toFixed(2)} / $15.50`; audio.playDing();
-            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showMinecraftToast('💵 刚好 $15.50！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
-            else if (paid > 15.5) showMinecraftToast('😅 付多啦，点清零重试！', '💵');
+            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showPixelToast('💵 刚好 $15.50！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
+            else if (paid > 15.5) showPixelToast('😅 付多啦，点清零重试！', '💵');
           };
         });
         document.getElementById('bnd-reset-btn').onclick = () => { paid = 0; b.style.background = '#1d4ed8'; b.textContent = '已付: $0.00 / $15.50'; };
@@ -1027,13 +1041,14 @@
             else { d = btn.dataset.v; document.getElementById('cd').textContent = d; document.getElementById('cd').classList.add('filled'); }
             if (m && d) {
               const res = document.getElementById('cr');
-              if (ok[`${m}|${d}`]) { audio.playLevelUp(); res.classList.add('filled'); res.textContent = m + d; showMinecraftToast(`⚒️ 成功合成【${m}${d}】！`, '⚒️'); speakChinese(m + d); }
-              else { res.textContent = '搭配有误'; showMinecraftToast('❌ 量词不对哦！试试「一碗面 / 一杯茶 / 一盘饭」。', '⚒️'); }
+              if (ok[`${m}|${d}`]) { audio.playLevelUp(); res.classList.add('filled'); res.textContent = m + d; showPixelToast(`⚒️ 成功合成【${m}${d}】！`, '⚒️'); speakChinese(m + d); }
+              else { res.textContent = '搭配有误'; showPixelToast('❌ 量词不对哦！试试「一碗面 / 一杯茶 / 一盘饭」。', '⚒️'); }
             }
           };
         });
       } else if (station.id === 'CHANCELLOR') {
-        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🎓 实体互动 5：电子结业证书颁发台</span><span class="minigame-badge">PNG Certificate</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;"><input id="cert-student-name" type="text" value="Jun (郑国君)" style="flex:1;min-width:150px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:12px;" /><button class="mini-action-btn" id="cert-gen-btn">刷新证书</button><button class="mini-action-btn success" id="cert-dl-btn">⬇️ 下载 PNG</button></div><canvas id="cert-canvas" width="520" height="220"></canvas></div>`;
+        const curName = (document.getElementById('char-name-input') && document.getElementById('char-name-input').value) || 'Jun (郑国君)';
+        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🎓 实体互动 5：电子结业证书颁发台</span><span class="minigame-badge">PNG Certificate</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;"><input id="cert-student-name" type="text" value="${curName}" style="flex:1;min-width:150px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:12px;" /><button class="mini-action-btn" id="cert-gen-btn">刷新证书</button><button class="mini-action-btn success" id="cert-dl-btn">⬇️ 下载 PNG</button></div><canvas id="cert-canvas" width="520" height="220"></canvas></div>`;
         function drawCert() {
           const c = document.getElementById('cert-canvas'), ctx = c.getContext('2d'), nm = document.getElementById('cert-student-name').value || 'University Student';
           ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,520,220);
@@ -1045,7 +1060,7 @@
           ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.fillText(`Chancellor Hall Convocation · ${new Date().toLocaleDateString()}`, 260, 190);
         }
         document.getElementById('cert-gen-btn').onclick = () => { audio.playDing(); drawCert(); };
-        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'University_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showMinecraftToast('🎓 结业证书 PNG 已下载！', '🎓'); };
+        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'University_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showPixelToast('🎓 结业证书 PNG 已下载！', '🎓'); };
         drawCert();
       }
     }
@@ -1082,7 +1097,7 @@
               fb.className = 'feedback-success';
               fb.innerHTML = `<div>🏆 <strong>恭喜通关【${station.nameCn}】！</strong> ${q.explain}</div><button class="quiz-option-btn" id="finish-st-btn" style="margin-top:8px;background:#2563eb;color:#fff;font-weight:bold;">继续探索校园 ➔</button>`;
               fb.style.display = 'block';
-              document.getElementById('finish-st-btn').onclick = () => { document.getElementById('station-dialog-modal').style.display = 'none'; showMinecraftToast(`【${station.nameCn}】通关成功！`, '🎖️'); };
+              document.getElementById('finish-st-btn').onclick = () => { document.getElementById('station-dialog-modal').style.display = 'none'; showPixelToast(`【${station.nameCn}】通关成功！`, '🎖️'); };
             }
           } else {
             fb.className = 'feedback-error';
@@ -1095,7 +1110,6 @@
       applyToneLensToDOM();
     }
 
-    // 7. 6 大学习辅助道具触发引擎
     function applyToneLensToDOM() {
       document.querySelectorAll('rt').forEach(rt => {
         const t = rt.textContent || '';
@@ -1136,7 +1150,7 @@
           player.yaw = 0;
         }
         const nm = target.nameCn.replace(/<rt>.*?<\/rt>/gi,'').replace(/<[^>]+>/g,'');
-        showMinecraftToast(`🧭 寻路罗盘已导航至【${nm}】门口！按 [E] 开始实训。`, '🧭');
+        showPixelToast(`🧭 寻路罗盘已导航至【${nm}】门口！按 [E] 开始实训。`, '🧭');
         speakChinese(nm);
       } else if (p.id === 'tonelens') {
         isToneLensActive = !isToneLensActive;
@@ -1144,7 +1158,7 @@
         applyToneLensToDOM();
         document.getElementById('tone-lens-legend-bar').style.display = isToneLensActive ? 'flex' : 'none';
         document.querySelectorAll('.mc-slot')[1].classList.toggle('prop-toggled-on', isToneLensActive);
-        showMinecraftToast(isToneLensActive ? '🔍 四声色彩透视镜已开启！' : '🔍 四声色彩透视镜已关闭。', '🔍');
+        showPixelToast(isToneLensActive ? '🔍 四声色彩透视镜已开启！' : '🔍 四声色彩透视镜已关闭。', '🔍');
       } else if (p.id === 'vocabbook') {
         const modal = document.getElementById('vocab-book-modal');
         modal.style.display = 'flex';
@@ -1156,13 +1170,13 @@
           const cIdx = q.correct !== undefined ? q.correct : q.answer;
           Array.from(document.querySelectorAll('#station-quiz-options .quiz-option-btn')).filter(b => Number(b.dataset.optIndex) !== cIdx).slice(0,2).forEach(b => { b.classList.add('eliminated-option'); b.querySelector('.opt-status-tag').textContent = '已排除'; });
           hintBox.style.display = 'block'; hintBox.innerHTML = `💡 <strong>【锦囊排错】</strong>：已排除 2 个干扰项！提示：${q.explain}`;
-          showMinecraftToast('💡 已排除 2 个错误选项！', '💡');
-        } else showMinecraftToast('💡 请先按 [E] 打开题目后再使用锦囊排错笔！', '💡');
+          showPixelToast('💡 已排除 2 个错误选项！', '💡');
+        } else showPixelToast('💡 请先按 [E] 打开题目后再使用锦囊排错笔！', '💡');
       } else if (p.id === 'repeater') {
         const txt = (isQuiz && currentActiveQuizStation) ? currentActiveQuizStation.learning.quizzes[currentActiveQuizIndex].question : (activeStationNear && activeStationNear.learning ? activeStationNear.learning.dialogue : '欢迎来到大学');
         speakChinese(txt, 0.55);
         if (isQuiz) { hintBox.style.display = 'block'; hintBox.innerHTML = '🔊 <strong>【0.55x 慢速复读机领读中】</strong>：请大声跟读！'; }
-        showMinecraftToast('🐢 正在以 0.55x 慢速清晰领读！', '🔊');
+        showPixelToast('🐢 正在以 0.55x 慢速清晰领读！', '🔊');
       } else if (p.id === 'nasilemak') {
         player.isSprinting = !player.isSprinting;
         document.querySelectorAll('.mc-slot')[5].classList.toggle('prop-toggled-on', player.isSprinting);
@@ -1170,11 +1184,10 @@
           const q = currentActiveQuizStation.learning.quizzes[currentActiveQuizIndex];
           hintBox.style.display = 'block'; hintBox.innerHTML = `🍙 <strong>【双语脑力加持】</strong>：${q.englishPrompt}<br>${currentActiveQuizStation.learning.keyVocab}`;
         }
-        showMinecraftToast(player.isSprinting ? '🍙 食用椰浆饭！已开启 1.6x 校园疾跑！' : '🍙 已切换回标准漫步速度。', '🍙');
+        showPixelToast(player.isSprinting ? '🍙 食用椰浆饭！已开启 1.6x 校园疾跑！' : '🍙 已切换回标准漫步速度。', '🍙');
       }
     }
 
-    // 8. Radar, Full Map, Hotbar & Loop
     function renderRadarCanvas() {
       const c = document.getElementById('radar-canvas'); if (!c) return;
       const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2, cy = h/2, r = 52, sc = r / 260;
@@ -1190,17 +1203,40 @@
 
     function drawFullCampusMap() {
       const c = document.getElementById('full-map-canvas'); if (!c) return;
-      const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2, cy = h/2 + 12, sx = 1.15, sz = 0.58;
-      ctx.fillStyle = '#143823'; ctx.fillRect(0,0,w,h);
-      ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(cx+15*sx, cy-150*sz, 40, 20, 0, 0, Math.PI*2); ctx.fill();
+      const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2 + 45, cy = h/2 + 35, sx = 1.15, sz = 0.72;
+      ctx.fillStyle = '#0f291e'; ctx.fillRect(0,0,w,h);
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)'; ctx.lineWidth = 1;
+      for (let gx = 0; gx < w; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke(); }
+      for (let gy = 0; gy < h; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke(); }
+
+      ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(cx+15*sx, cy-150*sz, 38, 18, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#bae6fd'; ctx.font = '10px sans-serif'; ctx.fillText('景观湖 (Lake)', cx+15*sx-30, cy-150*sz+4);
+
+      ctx.strokeStyle = '#475569'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+      const drawRoad = (x1, z1, x2, z2) => { ctx.beginPath(); ctx.moveTo(cx+x1*sx, cy+z1*sz); ctx.lineTo(cx+x2*sx, cy+z2*sz); ctx.stroke(); };
+      drawRoad(-73.9, 73.8, 0, 0);
+      drawRoad(0, 0, -244.9, -41.5);
+      drawRoad(0, 0, 4.6, -73.7);
+      drawRoad(4.6, -73.7, 55, -160);
+      drawRoad(0, 0, 115.6, 23.1);
+      drawRoad(65, -75, 150, -250);
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.fillRect(14, h - 42, 165, 28);
+      ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(24, h - 22); ctx.lineTo(24 + 50*sx, h - 22); ctx.stroke();
+      ctx.fillStyle = '#facc15'; ctx.font = 'bold 10px monospace';
+      ctx.fillText('1:3 比例尺 · 150m 实距', 24, h - 28);
+
       UNI_CAMPUS_REGISTRY.forEach(st => {
         const mx = cx + st.x*sx, my = cy + st.z*sz;
         ctx.fillStyle = st.color; ctx.beginPath(); ctx.arc(mx, my, st.type==='active'?9:6, 0, Math.PI*2); ctx.fill();
         if (st.type==='active' && st.unlocked && !st.completed) { ctx.strokeStyle='#facc15'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(mx,my,12,0,Math.PI*2); ctx.stroke(); }
         const nm = st.nameCn.replace(/<rt>.*?<\/rt>/gi,'').replace(/<[^>]+>/g,'');
-        ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 11px sans-serif'; ctx.fillText(`${st.icon} ${nm}`, mx + 12, my + 4);
+        ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10.5px sans-serif'; ctx.fillText(`${st.icon} ${nm}`, mx + 11, my + 4);
       });
       ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.arc(cx + player.pos.x*sx, cy + player.pos.z*sz, 6, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#4ade80'; ctx.font = 'bold 10px sans-serif'; ctx.fillText('你在此', cx + player.pos.x*sx - 15, cy + player.pos.z*sz - 10);
     }
 
     function toggleCampusMapModal(f) {
@@ -1210,7 +1246,7 @@
     }
 
     function closeAllModals() {
-      ['campus-map-modal','station-dialog-modal','vocab-book-modal'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+      ['campus-map-modal','station-dialog-modal','vocab-book-modal','character-modal'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     }
 
     function updateQuestTrackerUI() {
@@ -1223,7 +1259,7 @@
       } else {
         document.getElementById('hud-act-badge').textContent = 'ALL CLEAR';
         document.getElementById('hud-quest-name').innerHTML = '🏆 毕业认证达成！';
-        document.getElementById('hud-quest-desc').textContent = '已完成大学初级华语全部 5 大实训关卡！';
+        document.getElementById('hud-quest-desc').textContent = '已完成 University 初级华语全部 5 大实训关卡！';
       }
       applyToneLensToDOM();
     }
@@ -1254,6 +1290,144 @@
       } catch (e) {}
     }
 
+    let isThirdPerson = false;
+    let thirdPersonAvatarGroup = null;
+    let avatarParts = {};
+    let currentOutfitId = 'classic';
+
+    const OUTFITS_CATALOG = [
+      { id: 'classic', name: '经典青衫', nameEn: 'Classic Cyan', icon: '👕', sleeve: 0x00a8a8, torso: 0x00a8a8, pants: 0x1e3a8a, hat: null, hatColor: 0x000000, desc: '清新学院风初始探险装' },
+      { id: 'scholar', name: '黄金学士袍', nameEn: 'Golden Scholar', icon: '🎓', sleeve: 0xca8a04, torso: 0xeab308, pants: 0x1e293b, hat: 'cap', hatColor: 0xfacc15, desc: '佩戴金色方帽的学术荣誉袍' },
+      { id: 'sports', name: '运动健将服', nameEn: 'Sports Jersey', icon: '⚽', sleeve: 0xdc2626, torso: 0xef4444, pants: 0xf8fafc, hat: 'band', hatColor: 0xef4444, desc: '体育中心红色运动战袍与头带' },
+      { id: 'baju', name: '翡翠马来礼服', nameEn: 'Emerald Baju', icon: '🕌', sleeve: 0x059669, torso: 0x10b981, pants: 0x064e3b, hat: 'songkok', hatColor: 0x0f172a, desc: '传统翡翠绿金边礼服与宋谷帽' },
+      { id: 'chef', name: '主厨围裙装', nameEn: 'Master Chef', icon: '👨‍🍳', sleeve: 0xf1f5f9, torso: 0xffffff, pants: 0x334155, hat: 'chef', hatColor: 0xffffff, desc: '餐厅工坊白色主厨服与高帽' },
+      { id: 'royal', name: '黑金毕业礼服', nameEn: 'Convocation Robe', icon: '👑', sleeve: 0x1e293b, torso: 0x0f172a, pants: 0x0f172a, hat: 'crown', hatColor: 0xfacc15, desc: '总理大礼堂黑金巅峰礼服与金冠' }
+    ];
+
+    function buildThirdPersonAvatar() {
+      thirdPersonAvatarGroup = new THREE.Group();
+      const skinMat = new THREE.MeshLambertMaterial({ color: 0xd6a37a });
+      const torsoMat = new THREE.MeshLambertMaterial({ color: 0x00a8a8 });
+      const sleeveMat = new THREE.MeshLambertMaterial({ color: 0x00a8a8 });
+      const pantsMat = new THREE.MeshLambertMaterial({ color: 0x1e3a8a });
+
+      const legL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.8, 0.32), pantsMat); legL.position.set(-0.18, 0.4, 0);
+      const legR = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.8, 0.32), pantsMat); legR.position.set(0.18, 0.4, 0);
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 0.4), torsoMat); torso.position.set(0, 1.25, 0);
+      const armL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), sleeveMat); armL.position.set(-0.52, 1.25, 0);
+      const armR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.25), sleeveMat); armR.position.set(0.52, 1.25, 0);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.62, 0.62), skinMat); head.position.set(0, 2.02, 0);
+
+      const hatGroup = new THREE.Group(); hatGroup.position.set(0, 2.38, 0);
+      const hatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.16, 0.85), new THREE.MeshLambertMaterial({ color: 0xfacc15 }));
+      hatGroup.add(hatMesh); hatGroup.visible = false;
+
+      thirdPersonAvatarGroup.add(legL, legR, torso, armL, armR, head, hatGroup);
+      thirdPersonAvatarGroup.visible = false;
+      scene.add(thirdPersonAvatarGroup);
+      avatarParts = { torsoMat, sleeveMat, pantsMat, hatGroup, hatMesh, legL, legR, armL, armR };
+    }
+
+    function equipOutfit(outfitId) {
+      const o = OUTFITS_CATALOG.find(x => x.id === outfitId) || OUTFITS_CATALOG[0];
+      currentOutfitId = o.id;
+      if (playerHandGroup && playerHandGroup.children[0]) {
+        playerHandGroup.children[0].material.color.setHex(o.sleeve);
+      }
+      if (avatarParts.torsoMat) {
+        avatarParts.torsoMat.color.setHex(o.torso);
+        avatarParts.sleeveMat.color.setHex(o.sleeve);
+        avatarParts.pantsMat.color.setHex(o.pants);
+        if (o.hat) {
+          avatarParts.hatGroup.visible = true;
+          avatarParts.hatMesh.material.color.setHex(o.hatColor);
+          avatarParts.hatMesh.scale.set(o.hat === 'chef' ? 0.8 : 1.0, o.hat === 'chef' ? 2.4 : 1.0, o.hat === 'chef' ? 0.8 : 1.0);
+        } else {
+          avatarParts.hatGroup.visible = false;
+        }
+      }
+      renderWardrobeGrid();
+      drawCharacterPreview2D();
+      updateCharacterStatsUI();
+      showPixelToast(`👕 已换装：【${o.name}】(${o.nameEn})`, o.icon);
+    }
+
+    function toggleThirdPersonCamera() {
+      isThirdPerson = !isThirdPerson;
+      if (playerHandGroup) playerHandGroup.visible = !isThirdPerson;
+      if (thirdPersonAvatarGroup) thirdPersonAvatarGroup.visible = isThirdPerson;
+      document.getElementById('camera-mode-label').textContent = isThirdPerson ? '第三人称 [V]' : '第一人称 [V]';
+      showPixelToast(isThirdPerson ? '🎥 已切换为第三人称视角（可欣赏时装外观）' : '🎥 已切换回第一人称视角', '🎥');
+    }
+
+    function drawCharacterPreview2D() {
+      const c = document.getElementById('char-preview-canvas'); if (!c) return;
+      const ctx = c.getContext('2d');
+      const o = OUTFITS_CATALOG.find(x => x.id === currentOutfitId) || OUTFITS_CATALOG[0];
+      const hex = n => '#' + n.toString(16).padStart(6, '0');
+      ctx.clearRect(0, 0, c.width, c.height);
+
+      ctx.fillStyle = hex(o.pants);
+      ctx.fillRect(62, 140, 24, 56); ctx.fillRect(94, 140, 24, 56);
+      ctx.fillStyle = hex(o.torso); ctx.fillRect(58, 78, 64, 62);
+      ctx.fillStyle = hex(o.sleeve); ctx.fillRect(36, 78, 20, 54); ctx.fillRect(124, 78, 20, 54);
+      ctx.fillStyle = '#d6a37a'; ctx.fillRect(64, 28, 52, 48);
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(74, 48, 8, 8); ctx.fillRect(98, 48, 8, 8);
+      if (o.hat) {
+        ctx.fillStyle = hex(o.hatColor);
+        if (o.hat === 'chef') ctx.fillRect(66, 4, 48, 26);
+        else if (o.hat === 'band') ctx.fillRect(62, 32, 56, 8);
+        else ctx.fillRect(54, 18, 72, 12);
+      }
+      document.getElementById('char-preview-outfit-label').textContent = `当前穿戴：${o.icon} ${o.name}`;
+    }
+
+    function renderWardrobeGrid() {
+      const grid = document.getElementById('wardrobe-grid'); if (!grid) return;
+      grid.innerHTML = '';
+      OUTFITS_CATALOG.forEach(o => {
+        const card = document.createElement('div');
+        card.className = `outfit-card ${o.id === currentOutfitId ? 'equipped' : ''}`;
+        const hex = '#' + o.torso.toString(16).padStart(6, '0');
+        card.innerHTML = `<div class="outfit-swatch" style="background:${hex};">${o.icon}</div><div style="font-size:12.5px;font-weight:800;color:#f8fafc;">${o.name}</div><div style="font-size:10.5px;color:#94a3b8;margin:2px 0 4px;">${o.desc}</div><div style="font-size:10px;font-weight:bold;color:${o.id === currentOutfitId ? '#facc15' : '#38bdf8'};">${o.id === currentOutfitId ? '✓ 已穿戴' : '点击换装'}</div>`;
+        card.onclick = () => { audio.playDing(); equipOutfit(o.id); };
+        grid.appendChild(card);
+      });
+    }
+
+    function updateCharacterStatsUI() {
+      const nm = document.getElementById('char-name-input').value || 'Jun';
+      document.getElementById('char-preview-name').textContent = nm;
+      const certInput = document.getElementById('cert-student-name');
+      if (certInput) certInput.value = nm;
+      const cleared = UNI_CAMPUS_REGISTRY.filter(s => s.type === 'active' && s.completed).length;
+      const o = OUTFITS_CATALOG.find(x => x.id === currentOutfitId) || OUTFITS_CATALOG[0];
+      document.getElementById('stat-level').textContent = `Lv. ${player.level}`;
+      document.getElementById('stat-acts').textContent = `${cleared} / 5`;
+      document.getElementById('stat-outfit').textContent = `${o.icon} ${o.name}`;
+      document.getElementById('stat-speed').textContent = player.isSprinting ? '28 u/s (疾跑)' : '18 u/s (标准)';
+      document.getElementById('stat-coords').textContent = `X: ${player.pos.x.toFixed(1)}, Z: ${player.pos.z.toFixed(1)} (1:3)`;
+    }
+
+    function switchCharTab(tab) {
+      document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
+      document.getElementById('tab-btn-wardrobe').classList.toggle('active', tab === 'wardrobe');
+      document.getElementById('char-panel-stats').style.display = tab === 'stats' ? 'block' : 'none';
+      document.getElementById('char-panel-wardrobe').style.display = tab === 'wardrobe' ? 'block' : 'none';
+    }
+
+    function toggleCharacterModal(f) {
+      const m = document.getElementById('character-modal');
+      const nxt = f !== undefined ? f : m.style.display !== 'flex';
+      m.style.display = nxt ? 'flex' : 'none';
+      if (nxt) {
+        if (document.exitPointerLock) document.exitPointerLock();
+        updateCharacterStatsUI();
+        renderWardrobeGrid();
+        drawCharacterPreview2D();
+      }
+    }
+
     let lastTime = performance.now();
     function gameLoop(now) {
       requestAnimationFrame(gameLoop);
@@ -1279,6 +1453,10 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initThreeScene(); initInputControls(); renderBottomHotbarUI(); updateQuestTrackerUI(); loadExternalQuestsConfig();
+      document.getElementById('open-character-btn').onclick = () => toggleCharacterModal(true);
+      document.getElementById('close-char-btn').onclick = () => toggleCharacterModal(false);
+      document.getElementById('toggle-camera-btn').onclick = toggleThirdPersonCamera;
+      document.getElementById('char-name-input').addEventListener('input', updateCharacterStatsUI);
       document.getElementById('toggle-lighting-btn').onclick = cycleCampusLighting;
       document.getElementById('open-campus-map-btn').onclick = () => toggleCampusMapModal(true);
       document.getElementById('radar-container').onclick = () => toggleCampusMapModal(true);
@@ -1291,13 +1469,13 @@
         const c = e.target, r = c.getBoundingClientRect();
         const cx = (e.clientX - r.left)*(c.width/r.width), cy = (e.clientY - r.top)*(c.height/r.height);
         UNI_CAMPUS_REGISTRY.forEach(st => {
-          const mx = c.width/2 + st.x*1.15, my = c.height/2 + 12 + st.z*0.58;
+          const mx = c.width/2 + 45 + st.x*1.15, my = c.height/2 + 35 + st.z*0.72;
           if (Math.hypot(cx - mx, cy - my) < 18) {
             audio.playDing();
             player.pos.set(st.x, 1.7 + getTerrainHeightAt(st.x, st.z + 9), st.z + 9);
             player.yaw = 0;
             toggleCampusMapModal(false);
-            showMinecraftToast(`🚀 已传送至: ${st.name}`, '🚀');
+            showPixelToast(`🚀 已传送至: ${st.name}`, '🚀');
           }
         });
       });
