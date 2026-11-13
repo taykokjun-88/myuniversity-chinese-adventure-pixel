@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>麦块中文大冒险 v2.0 · 校园沉浸互动版</title>
+  <title>My University Adventure - Pixel</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -164,19 +164,19 @@
 
     <div id="top-nav-bar">
       <div class="hud-badge">
-        <div class="hud-main-title">MINECRAFT CHINESE ADVENTURE v2.0</div>
+        <div class="hud-main-title">MY UNIVERSITY ADVENTURE - PIXEL</div>
         <div class="hud-sub-zone">
           <span class="zone-indicator"></span>
-          <span id="current-zone-label">📍 当前区域: UBD 中央校道环岛 (Main Roundabout)</span>
+          <span id="current-zone-label">📍 当前区域: University 中央校道环岛 (Main Roundabout)</span>
         </div>
       </div>
       <div class="top-action-btn-group">
         <button class="mc-btn-pill" id="toggle-lighting-btn"><span>☀️</span><span id="lighting-mode-label">正午光影 [L]</span></button>
-        <button class="mc-btn-pill" id="open-campus-map-btn"><span>🗺️</span><span>文大校园全图 [M]</span></button>
+        <button class="mc-btn-pill" id="open-campus-map-btn"><span>🗺️</span><span>大学校园全图 [M]</span></button>
       </div>
     </div>
 
-    <div id="radar-container" title="点击展开文大完整校园大地图">
+    <div id="radar-container" title="点击展开大学完整校园大地图">
       <canvas id="radar-canvas" width="132" height="132"></canvas>
       <div class="radar-hint">点击展开全图 [M]</div>
     </div>
@@ -243,9 +243,9 @@
     <div class="modal-overlay" id="campus-map-modal">
       <div class="mc-window" style="max-width: 800px;">
         <button class="close-modal-btn" id="close-map-btn">×</button>
-        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ 文莱大学 (UBD) 真实校园宏观大地图</h2>
+        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ 大学 (University) 校园宏观大地图</h2>
         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
-          按真实 UBD 校园方位测绘：南大门 Dewan Canselor、东侧山脊长城石阶与语言中心、西侧体育中心、东北端 The Core 公寓、中央餐厅与湖畔清真寺。<strong>点击任意站点即可直接传送前往！</strong>
+          按校园方位测绘：南大门 Chancellor Hall、东侧山脊长城石阶与语言中心、西侧体育中心、东北端学生公寓市集、中央餐厅与湖畔清真寺。<strong>点击任意站点即可直接传送前往！</strong>
         </p>
         <div style="width: 100%; height: 390px; background: #020617; border: 2px solid #334155; border-radius: 8px; overflow: hidden;">
           <canvas id="full-map-canvas" width="760" height="390" style="width: 100%; height: 100%; display: block;"></canvas>
@@ -261,7 +261,7 @@
           <div class="npc-avatar-frame" id="npc-avatar-display">👨‍🏫</div>
           <div>
             <h3 id="station-npc-name" style="font-size:17px;">王老师 (Teacher Wang)</h3>
-            <p id="station-npc-role" style="font-size:12px;color:#94a3b8;">UBD 语言中心 · 中文讲师</p>
+            <p id="station-npc-role" style="font-size:12px;color:#94a3b8;">University 语言中心 · 中文讲师</p>
           </div>
         </div>
         <div class="station-body-card">
@@ -299,7 +299,7 @@
     <div class="modal-overlay" id="vocab-book-modal" style="z-index: 115;">
       <div class="mc-window" style="max-width: 780px;">
         <button class="close-modal-btn" id="close-vocab-btn">×</button>
-        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">📖 UBD 初级华语随身生词本 (LEM-1401 / LM-1403)</h2>
+        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">📖 University 初级华语随身生词本</h2>
         <div class="vocab-filter-tabs" id="vocab-filter-tabs">
           <button class="vocab-tab-btn active" onclick="renderVocabBookCards('ALL', this)">全部词汇</button>
           <button class="vocab-tab-btn" onclick="renderVocabBookCards(1, this)">Act 1 语言中心</button>
@@ -314,15 +314,15 @@
 
     <!-- Start Overlay -->
     <div id="start-screen-overlay">
-      <h1 style="font-size:28px;color:#facc15;font-weight:900;">麦块中文大冒险 v2.0</h1>
-      <p style="font-size:14px;color:#94a3b8;margin-top:6px;">Universiti Brunei Darussalam · 3D 立体导师 · 长城石阶地形 · 5 大实体互动关卡</p>
-      <button class="start-play-btn" id="start-game-btn">进入文大校园 (ENTER CAMPUS)</button>
+      <h1 style="font-size:28px;color:#facc15;font-weight:900;">My University Adventure - Pixel</h1>
+      <p style="font-size:14px;color:#94a3b8;margin-top:6px;">University · 3D 立体导师 · 长城石阶地形 · 5 大实体互动关卡</p>
+      <button class="start-play-btn" id="start-game-btn">进入大学校园 (ENTER CAMPUS)</button>
       <div class="control-guide-box">
         <p style="font-weight:bold;color:#facc15;margin-bottom:6px;">🎮 操作指南 (Controls):</p>
         <p>• <strong>W / A / S / D</strong> 或 <strong>方向键</strong>：移动 | <strong>Space</strong>：跳跃 | <strong>鼠标移动</strong>：环顾视角</p>
-        <p>• <strong>E 键</strong>：与 3D 导师 NPC 对话，体验毛笔笔画板 / 射靶 / 文币付款 / 量词合成 / 结业证书</p>
+        <p>• <strong>E 键</strong>：与 3D 导师 NPC 对话，体验毛笔笔画板 / 射靶 / 货币付款 / 量词合成 / 结业证书</p>
         <p>• <strong>1 - 6 数字键</strong>：触发 6 大中文学习辅助道具（罗盘 / 四声透视 / 生词本 / 排错笔 / 慢速复读 / 椰浆饭）</p>
-        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开 UBD 校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
+        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开大学校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
       </div>
     </div>
   </div>
@@ -391,14 +391,14 @@
       t._timer = setTimeout(() => { t.style.display = 'none'; }, 3200);
     }
 
-    // 2. UBD 校园真实地标注册表 (支持外部 ./data/quests.json 热更新)
-    const UBD_CAMPUS_REGISTRY = [
+    // 2. University 校园真实地标注册表 (支持外部 ./data/quests.json 热更新)
+    const UNI_CAMPUS_REGISTRY = [
       {
-        id: 'LC', name: 'Language Centre (Pusat Bahasa)',
+        id: 'LC', name: 'Language Centre',
         nameCn: '<ruby>语<rt>yǔ</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby> · <ruby>第<rt>dì</rt></ruby><ruby>八<rt>bā</rt></ruby><ruby>研<rt>yán</rt></ruby><ruby>讨<rt>tǎo</rt></ruby><ruby>室<rt>shì</rt></ruby>',
-        desc: '位于校园东侧山脊高地，需攀登文大标志性“长城石阶”到达。',
+        desc: '位于校园东侧山脊高地，需攀登标志性“长城石阶”到达。',
         x: 135, z: 30, color: '#3b82f6', beaconColor: 0x3b82f6, type: 'active', act: 1, icon: '🏛️', unlocked: true, completed: false,
-        npc: { name: '<ruby>王<rt>wáng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby> (Teacher Wang)', role: '文莱大学语言中心 · 中文讲师', avatar: '👨‍🏫' },
+        npc: { name: '<ruby>王<rt>wáng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby> (Teacher Wang)', role: '大学语言中心 · 中文讲师', avatar: '👨‍🏫' },
         learning: {
           topic: 'Act 1: <ruby>语<rt>yǔ</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>四<rt>sì</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>汉<rt>hàn</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>画<rt>huà</rt></ruby>',
           dialogue: '<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>好<rt>hǎo</rt></ruby>！<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>沿<rt>yán</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>长<rt>cháng</rt></ruby><ruby>城<rt>chéng</rt></ruby><ruby>石<rt>shí</rt></ruby><ruby>阶<rt>jiē</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>语<rt>yǔ</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby>。',
@@ -421,11 +421,11 @@
         }
       },
       {
-        id: 'SPORTS', name: 'UBD Sports Complex (Kompleks Sukan)',
+        id: 'SPORTS', name: 'University Sports Complex',
         nameCn: '<ruby>综<rt>zōng</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>育<rt>yù</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby>',
         desc: '校园西侧大型体育馆与田径场，学习动作口令与身体部位。',
         x: -220, z: -35, color: '#10b981', beaconColor: 0x10b981, type: 'active', act: 2, icon: '⚽', unlocked: false, completed: false,
-        npc: { name: '<ruby>陈<rt>chén</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>练<rt>liàn</rt></ruby> (Coach Chen)', role: 'UBD 体育中心总教练', avatar: '🥋' },
+        npc: { name: '<ruby>陈<rt>chén</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>练<rt>liàn</rt></ruby> (Coach Chen)', role: '大学体育中心总教练', avatar: '🥋' },
         learning: {
           topic: 'Act 2: <ruby>动<rt>dòng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>指<rt>zhǐ</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby>',
           dialogue: '<ruby>各<rt>gè</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>运<rt>yùn</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>集<rt>jí</rt></ruby><ruby>合<rt>hé</rt></ruby>！<ruby>听<rt>tīng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>口<rt>kǒu</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>射<rt>shè</rt></ruby><ruby>靶<rt>bǎ</rt></ruby>！',
@@ -448,15 +448,15 @@
         }
       },
       {
-        id: 'COMMERCIAL', name: 'The Core Concourse (Koperasi UBD)',
+        id: 'COMMERCIAL', name: 'Campus Co-op Market',
         nameCn: '<ruby>核<rt>hé</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>公<rt>gōng</rt></ruby><ruby>寓<rt>yù</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>集<rt>jí</rt></ruby>',
-        desc: '东北端 The Core 学生公寓与 Koperasi 合作社，实训文币购物与找零。',
+        desc: '东北端学生公寓与 Campus Co-op 合作社，实训货币购物与找零。',
         x: 150, z: -250, color: '#f97316', beaconColor: 0xf97316, type: 'active', act: 3, icon: '🛍️', unlocked: false, completed: false,
-        npc: { name: '<ruby>萨<rt>sà</rt></ruby><ruby>拉<rt>lā</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>姐<rt>jiě</rt></ruby> (Sarah)', role: 'Koperasi UBD 执事学姐', avatar: '🧕' },
+        npc: { name: '<ruby>萨<rt>sà</rt></ruby><ruby>拉<rt>lā</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>姐<rt>jiě</rt></ruby> (Sarah)', role: 'Campus Co-op 执事学姐', avatar: '🧕' },
         learning: {
-          topic: 'Act 3: <ruby>数<rt>shù</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>币<rt>bì</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby>',
-          dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>社<rt>shè</rt></ruby>！<ruby>请<rt>qǐng</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>莱<rt>lái</rt></ruby><ruby>币<rt>bì</rt></ruby><ruby>付<rt>fù</rt></ruby><ruby>款<rt>kuǎn</rt></ruby>。',
-          englishTranslation: '"Welcome to Koperasi UBD! Let us practice paying in Brunei Dollars (BND)."',
+          topic: 'Act 3: <ruby>数<rt>shù</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>货<rt>huò</rt></ruby><ruby>币<rt>bì</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby>',
+          dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>社<rt>shè</rt></ruby>！<ruby>请<rt>qǐng</rt></ruby><ruby>付<rt>fù</rt></ruby><ruby>款<rt>kuǎn</rt></ruby>。',
+          englishTranslation: '"Welcome to the Campus Co-op! Let us practice paying in dollars and cents."',
           keyVocab: '💡 <ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby> (How much) | <ruby>块<rt>kuài</rt></ruby> ($) | <ruby>毛<rt>máo</rt></ruby> (10¢)',
           quizzes: [
             {
@@ -468,21 +468,21 @@
             {
               question: '“<ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby>？',
               englishPrompt: '[What amount is "十五块五毛钱"?]',
-              options: ['$10.50 BND', '$15.05 BND', '$15.50 BND', '$50.15 BND'],
-              correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50 BND。'
+              options: ['$10.50', '$15.05', '$15.50', '$50.15'],
+              correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50。'
             }
           ]
         }
       },
       {
-        id: 'DINING', name: 'UBD Student Canteen (Medan Selera)',
+        id: 'DINING', name: 'University Student Canteen',
         nameCn: '<ruby>餐<rt>cān</rt></ruby><ruby>厅<rt>tīng</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>谱<rt>pǔ</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>坊<rt>fāng</rt></ruby>',
         desc: '中央生活区风味餐厅，使用量词工作台合成椰浆饭、干捞面与拉茶。',
         x: -35, z: -45, color: '#ec4899', beaconColor: 0xec4899, type: 'active', act: 4, icon: '🍜', unlocked: false, completed: false,
-        npc: { name: '<ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>傅<rt>fu</rt></ruby> (Chef Ah Ming)', role: 'UBD 餐厅主厨', avatar: '👨‍🍳' },
+        npc: { name: '<ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>傅<rt>fu</rt></ruby> (Chef Ah Ming)', role: '大学餐厅主厨', avatar: '👨‍🍳' },
         learning: {
           topic: 'Act 4: <ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>餐<rt>cān</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby>',
-          dialogue: '<ruby>请<rt>qǐng</rt></ruby><ruby>坐<rt>zuò</rt></ruby>！<ruby>用<rt>yòng</rt></ruby><ruby>正<rt>zhèng</rt></ruby><ruby>确<rt>què</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>莱<rt>lái</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>吧<rt>ba</rt></ruby>！',
+          dialogue: '<ruby>请<rt>qǐng</rt></ruby><ruby>坐<rt>zuò</rt></ruby>！<ruby>用<rt>yòng</rt></ruby><ruby>正<rt>zhèng</rt></ruby><ruby>确<rt>què</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>吧<rt>ba</rt></ruby>！',
           englishTranslation: '"Take a seat! Combine the right measure words with local dishes!"',
           keyVocab: '💡 <ruby>一<rt>yī</rt></ruby><ruby>碗<rt>wǎn</rt></ruby><ruby>面<rt>miàn</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>杯<rt>bēi</rt></ruby><ruby>茶<rt>chá</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>盘<rt>pán</rt></ruby><ruby>饭<rt>fàn</rt></ruby> | <ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>',
           quizzes: [
@@ -502,11 +502,11 @@
         }
       },
       {
-        id: 'CHANCELLOR', name: 'Chancellor Hall (Dewan Canselor)',
+        id: 'CHANCELLOR', name: 'Chancellor Hall',
         nameCn: '<ruby>总<rt>zǒng</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>礼<rt>lǐ</rt></ruby><ruby>堂<rt>táng</rt></ruby> · <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>典<rt>diǎn</rt></ruby>',
         desc: '南大门金色四层金字塔殿堂，完成终极测评并领取 PNG 结业证书。',
         x: -95, z: 110, color: '#eab308', beaconColor: 0xeab308, type: 'active', act: 5, icon: '🎓', unlocked: false, completed: false,
-        npc: { name: '<ruby>郑<rt>zhèng</rt></ruby><ruby>副<rt>fù</rt></ruby><ruby>校<rt>xiào</rt></ruby><ruby>长<rt>zhǎng</rt></ruby> (Vice-Chancellor)', role: '文莱大学副校长', avatar: '🎖️' },
+        npc: { name: '<ruby>郑<rt>zhèng</rt></ruby><ruby>副<rt>fù</rt></ruby><ruby>校<rt>xiào</rt></ruby><ruby>长<rt>zhǎng</rt></ruby> (Vice-Chancellor)', role: '大学副校长', avatar: '🎖️' },
         learning: {
           topic: 'Act 5: <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>典<rt>diǎn</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>颁<rt>bān</rt></ruby><ruby>发<rt>fā</rt></ruby>',
           dialogue: '<ruby>祝<rt>zhù</rt></ruby><ruby>贺<rt>hè</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>抵<rt>dǐ</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>总<rt>zǒng</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>礼<rt>lǐ</rt></ruby><ruby>堂<rt>táng</rt></ruby>！<ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>载<rt>zǎi</rt></ruby><ruby>结<rt>jié</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>书<rt>shū</rt></ruby>。',
@@ -514,10 +514,10 @@
           keyVocab: '💡 <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby> (Graduation) | <ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>',
           quizzes: [
             {
-              question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>莱<rt>lái</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>为<rt>wéi</rt></ruby>：',
+              question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>为<rt>wéi</rt></ruby>：',
               englishPrompt: '[Choose the English meaning:]',
-              options: ['I teach English in Brunei', 'I study Chinese at UBD', 'I am on holiday', 'I work at Chancellor Hall'],
-              correct: 1, explain: '“我在文莱大学学习中文”意为 I study Chinese at UBD。'
+              options: ['I teach English at University', 'I study Chinese at University', 'I am on holiday', 'I work at Chancellor Hall'],
+              correct: 1, explain: '“我在大学学习中文”意为 I study Chinese at University。'
             },
             {
               question: '<ruby>向<rt>xiàng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：',
@@ -529,33 +529,33 @@
         }
       },
       // 5 Future Extension Landmarks
-      { id: 'LIBRARY', name: 'UBD Central Library', nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>', desc: '校园中心文献大楼（可在 data/quests.json 中激活）。', x: 0, z: -18, color: '#6366f1', beaconColor: 0x6366f1, type: 'future', act: null, icon: '📚', npc: { name: '馆长助理', role: '图书馆顾问', avatar: '👩‍🏫' }, futureFeature: '学术文献检索中文模块' },
+      { id: 'LIBRARY', name: 'University Central Library', nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>', desc: '校园中心文献大楼（可在 data/quests.json 中激活）。', x: 0, z: -18, color: '#6366f1', beaconColor: 0x6366f1, type: 'future', act: null, icon: '📚', npc: { name: '馆长助理', role: '图书馆顾问', avatar: '👩‍🏫' }, futureFeature: '学术文献检索中文模块' },
       { id: 'FASS', name: 'Faculty of Arts & Social Sciences', nameCn: '<ruby>人<rt>rén</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '红砖庭院教学楼（预留拓展区）。', x: -65, z: -5, color: '#8b5cf6', beaconColor: 0x8b5cf6, type: 'future', act: null, icon: '🎭', npc: { name: '人文讲师', role: 'FASS 学者', avatar: '👨‍🏫' }, futureFeature: '跨文化文学与历史中文模块' },
       { id: 'FOS', name: 'Faculty of Science', nameCn: '<ruby>理<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '自然科学实验楼群（预留拓展区）。', x: 65, z: -75, color: '#14b8a6', beaconColor: 0x14b8a6, type: 'future', act: null, icon: '🔬', npc: { name: '李博士', role: '热带生态研究员', avatar: '👨‍🔬' }, futureFeature: '环境科技汉语模块' },
-      { id: 'IHS', name: 'PAPRSB IHS', nameCn: '<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '医学院大楼（预留拓展区）。', x: 130, z: -60, color: '#06b6d4', beaconColor: 0x06b6d4, type: 'future', act: null, icon: '🩺', npc: { name: 'Dr. Nurul', role: '临床导师', avatar: '👩‍⚕️' }, futureFeature: '医护问诊中文模块' },
-      { id: 'MOSQUE', name: 'Masjid Universiti UBD', nameCn: '<ruby>文<rt>wén</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>', desc: '北部景观湖畔清真寺（预留拓展区）。', x: 55, z: -160, color: '#84cc16', beaconColor: 0x84cc16, type: 'future', act: null, icon: '🕌', npc: { name: '文化学者', role: '文化遗产中心', avatar: '👳‍♂️' }, futureFeature: '文莱传统文化交流模块' }
+      { id: 'IHS', name: 'Institute of Health Sciences', nameCn: '<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '医学院大楼（预留拓展区）。', x: 130, z: -60, color: '#06b6d4', beaconColor: 0x06b6d4, type: 'future', act: null, icon: '🩺', npc: { name: 'Dr. Nurul', role: '临床导师', avatar: '👩‍⚕️' }, futureFeature: '医护问诊中文模块' },
+      { id: 'MOSQUE', name: 'University Mosque', nameCn: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>', desc: '北部景观湖畔清真寺（预留拓展区）。', x: 55, z: -160, color: '#84cc16', beaconColor: 0x84cc16, type: 'future', act: null, icon: '🕌', npc: { name: '文化学者', role: '文化遗产中心', avatar: '👳‍♂️' }, futureFeature: '传统文化交流模块' }
     ];
 
     // 3. 6 大中文学习辅助道具与生词本词库
     const LEARNING_PROPS = [
       { slot: 1, id: 'compass', name: '寻路罗盘', icon: '🧭', color: 0xfacc15, badge: '导航', desc: '自动转向当前主线建筑并一键传送至目标门口' },
       { slot: 2, id: 'tonelens', name: '声调透视', icon: '🔍', color: 0x38bdf8, badge: '四声', desc: '开启/关闭四声色彩高亮（一声蓝·二声绿·三声黄·四声红）' },
-      { slot: 3, id: 'vocabbook', name: '随身词典', icon: '📖', color: 0xa855f7, badge: '词库', desc: '随时查阅 LEM-1401 生词本与 0.55x 慢速跟读' },
+      { slot: 3, id: 'vocabbook', name: '随身词典', icon: '📖', color: 0xa855f7, badge: '词库', desc: '随时查阅生词本与 0.55x 慢速跟读' },
       { slot: 4, id: 'eliminator', name: '锦囊排错', icon: '💡', color: 0x22c55e, badge: '破题', desc: '答题时排除 2 个错误干扰项并显示语法提示' },
       { slot: 5, id: 'repeater', name: '慢速复读', icon: '🔊', color: 0xf97316, badge: '正音', desc: '以 0.55 倍慢速清晰领读当前题干或导师对话' },
       { slot: 6, id: 'nasilemak', name: '椰浆饭', icon: '🍙', color: 0x10b981, badge: '双语', desc: '回满体力并开启 1.6x 疾跑；答题时高亮双语核心词' }
     ];
 
-    const UBD_VOCAB_HANDBOOK = [
+    const UNI_VOCAB_HANDBOOK = [
       { act: 1, word: '<ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby>', raw: '拼音', pinyin: 'pīn yīn', en: 'Hanyu Pinyin', ex: '学习中文首先要掌握拼音和四个声调。' },
       { act: 1, word: '<ruby>笔<rt>bǐ</rt></ruby><ruby>画<rt>huà</rt></ruby>', raw: '笔画', pinyin: 'bǐ huà', en: 'Character Strokes', ex: '写“十”字先横后竖。' },
       { act: 2, word: '<ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby>', raw: '向左转', pinyin: 'xiàng zuǒ zhuǎn', en: 'Turn left', ex: '听到陈教练口令“向左转”立刻转向。' },
       { act: 2, word: '<ruby>脚<rt>jiǎo</rt></ruby>', raw: '脚', pinyin: 'jiǎo', en: 'Foot', ex: '踢足球主要用脚。' },
       { act: 3, word: '<ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>', raw: '多少钱', pinyin: 'duō shao qián', en: 'How much?', ex: '请问这本书多少钱？' },
-      { act: 3, word: '<ruby>块<rt>kuài</rt></ruby> / <ruby>毛<rt>máo</rt></ruby>', raw: '块和毛', pinyin: 'kuài / máo', en: 'Dollar / 10 Cents', ex: '十五块五毛钱等于 $15.50 BND。' },
+      { act: 3, word: '<ruby>块<rt>kuài</rt></ruby> / <ruby>毛<rt>máo</rt></ruby>', raw: '块和毛', pinyin: 'kuài / máo', en: 'Dollar / 10 Cents', ex: '十五块五毛钱等于 $15.50。' },
       { act: 4, word: '<ruby>一<rt>yī</rt></ruby><ruby>碗<rt>wǎn</rt></ruby><ruby>面<rt>miàn</rt></ruby>', raw: '一碗面', pinyin: 'yī wǎn miàn', en: 'A bowl of noodles', ex: '我想要一碗干捞面。' },
       { act: 4, word: '<ruby>一<rt>yī</rt></ruby><ruby>杯<rt>bēi</rt></ruby><ruby>茶<rt>chá</rt></ruby>', raw: '一杯茶', pinyin: 'yī bēi chá', en: 'A cup of tea', ex: '再来一杯热拉茶。' },
-      { act: 5, word: '<ruby>文<rt>wén</rt></ruby><ruby>莱<rt>lái</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby>', raw: '文莱大学', pinyin: 'wén lái dà xué', en: 'UBD', ex: '我在文莱大学学习中文。' },
+      { act: 5, word: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby>', raw: '大学', pinyin: 'dà xué', en: 'University', ex: '我在大学学习中文。' },
       { act: 5, word: '<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>', raw: '谢谢老师', pinyin: 'xiè xie lǎo shī', en: 'Thank you, Teacher', ex: '谢谢老师，您辛苦了！' }
     ];
 
@@ -610,13 +610,11 @@
       sun.position.set(80, 140, 60);
       scene.add(sun);
 
-      // Ground
       grassTex.wrapS = grassTex.wrapT = THREE.RepeatWrapping; grassTex.repeat.set(90, 90);
       const ground = new THREE.Mesh(new THREE.PlaneGeometry(650, 650), new THREE.MeshLambertMaterial({ map: grassTex }));
       ground.rotation.x = -Math.PI / 2;
       scene.add(ground);
 
-      // Tasik UBD Water
       waterMeshRef = new THREE.Mesh(
         new THREE.CircleGeometry(36, 24),
         new THREE.MeshLambertMaterial({ color: 0x0284c7, transparent: true, opacity: 0.85 })
@@ -625,13 +623,11 @@
       waterMeshRef.position.set(15, 0.08, -150);
       scene.add(waterMeshRef);
 
-      // Central Roundabout & Main Roads
       const roadMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
       const r1 = new THREE.Mesh(new THREE.BoxGeometry(360, 0.06, 10), roadMat); r1.position.set(-40, 0.03, -25); scene.add(r1);
       const r2 = new THREE.Mesh(new THREE.BoxGeometry(10, 0.06, 280), roadMat); r2.position.set(0, 0.03, -20); scene.add(r2);
       const rSouth = new THREE.Mesh(new THREE.BoxGeometry(12, 0.06, 140), roadMat); rSouth.position.set(-50, 0.03, 55); rSouth.rotation.y = 0.65; scene.add(rSouth);
 
-      // Elevated Ridge & Tangga Great Wall Stairs to Language Centre
       const ridge = new THREE.Mesh(new THREE.BoxGeometry(44, 4.2, 70), new THREE.MeshLambertMaterial({ map: grassTex }));
       ridge.position.set(144, 2.1, 30);
       scene.add(ridge);
@@ -641,7 +637,6 @@
         scene.add(step);
       }
 
-      // Clouds
       cloudsGroup = new THREE.Group();
       const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
       for (let i = 0; i < 18; i++) {
@@ -651,7 +646,6 @@
       }
       scene.add(cloudsGroup);
 
-      // Tropical Palm Trees
       const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
       const leafMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
       for (let i = 0; i < 36; i++) {
@@ -666,8 +660,7 @@
         scene.add(trunk, crown);
       }
 
-      // Build All 10 UBD Landmarks + Beacons + 3D Voxel NPCs
-      UBD_CAMPUS_REGISTRY.forEach(st => {
+      UNI_CAMPUS_REGISTRY.forEach(st => {
         const g = new THREE.Group();
         const by = getTerrainHeightAt(st.x, st.z);
         g.position.set(st.x, by, st.z);
@@ -694,7 +687,6 @@
           g.add(b, roof);
         }
 
-        // Beacon Beam
         const beam = new THREE.Mesh(
           new THREE.CylinderGeometry(0.45, 0.45, 90, 8),
           new THREE.MeshBasicMaterial({ color: st.beaconColor, transparent: true, opacity: 0.35 })
@@ -705,7 +697,7 @@
       });
 
       buildAllCampusVoxelNPCs();
-      buildSteveFirstPersonArm();
+      buildPlayerFirstPersonArm();
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -730,7 +722,7 @@
 
     function buildAllCampusVoxelNPCs() {
       const outfits = { LC: 0x2563eb, SPORTS: 0x16a34a, COMMERCIAL: 0xea580c, DINING: 0xec4899, CHANCELLOR: 0xca8a04 };
-      UBD_CAMPUS_REGISTRY.forEach(st => {
+      UNI_CAMPUS_REGISTRY.forEach(st => {
         const g = new THREE.Group();
         const baseY = getTerrainHeightAt(st.x, st.z + 5.5);
         g.position.set(st.x, baseY, st.z + 5.5);
@@ -764,7 +756,7 @@
       });
     }
 
-    function buildSteveFirstPersonArm() {
+    function buildPlayerFirstPersonArm() {
       playerHandGroup = new THREE.Group();
       const sleeve = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.28, 0.24), new THREE.MeshLambertMaterial({ color: 0x00a8a8 })); sleeve.position.set(0, 0.25, 0);
       const arm = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.6, 0.22), new THREE.MeshLambertMaterial({ color: 0xb5825a })); arm.position.set(0, -0.15, 0);
@@ -889,14 +881,14 @@
 
     function checkProximityToStations() {
       let nearest = null, minDist = Infinity;
-      UBD_CAMPUS_REGISTRY.forEach(st => {
+      UNI_CAMPUS_REGISTRY.forEach(st => {
         const d = Math.hypot(player.pos.x - st.x, player.pos.z - st.z);
         if (d < minDist) { minDist = d; nearest = st; }
       });
       const zl = document.getElementById('current-zone-label');
-      zl.innerHTML = (nearest && minDist < 36) ? `📍 当前区域: <strong>${nearest.nameCn}</strong> (${nearest.name})` : '📍 当前区域: UBD 中央校道环岛 (Main Roundabout)';
+      zl.innerHTML = (nearest && minDist < 36) ? `📍 当前区域: <strong>${nearest.nameCn}</strong> (${nearest.name})` : '📍 当前区域: 大学中央校道环岛 (Main Roundabout)';
 
-      const cur = UBD_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed);
+      const cur = UNI_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed);
       if (cur) document.getElementById('hud-quest-dist').textContent = `距离: ${Math.round(Math.hypot(player.pos.x - cur.x, player.pos.z - cur.z))}m`;
 
       const pe = document.getElementById('interact-prompt');
@@ -1014,13 +1006,13 @@
         spawnT();
       } else if (station.id === 'COMMERCIAL') {
         let paid = 0;
-        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>💵 实体互动 3：文莱币 (BND) 付款台</span><span class="minigame-badge" id="bnd-paid-badge">已付: $0.00 / $15.50</span></div><div style="font-size:12.5px;">萨拉学姐：“这本课本一共 <strong style="color:#facc15;">十五块五毛钱 ($15.50 BND)</strong>，请凑出准确金额！”</div><div class="bnd-tray"><button class="bnd-note-btn" data-val="10">$10</button><button class="bnd-note-btn" data-val="5">$5</button><button class="bnd-note-btn" data-val="1">$1</button><button class="bnd-note-btn coin" data-val="0.5">50¢</button><button class="bnd-note-btn coin" data-val="0.2">20¢</button><button class="bnd-note-btn coin" data-val="0.1">10¢</button><button class="mini-action-btn secondary" id="bnd-reset-btn">清零</button></div></div>`;
+        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>💵 实体互动 3：校园合作社付款台</span><span class="minigame-badge" id="bnd-paid-badge">已付: $0.00 / $15.50</span></div><div style="font-size:12.5px;">萨拉学姐：“这本课本一共 <strong style="color:#facc15;">十五块五毛钱 ($15.50)</strong>，请凑出准确金额！”</div><div class="bnd-tray"><button class="bnd-note-btn" data-val="10">$10</button><button class="bnd-note-btn" data-val="5">$5</button><button class="bnd-note-btn" data-val="1">$1</button><button class="bnd-note-btn coin" data-val="0.5">50¢</button><button class="bnd-note-btn coin" data-val="0.2">20¢</button><button class="bnd-note-btn coin" data-val="0.1">10¢</button><button class="mini-action-btn secondary" id="bnd-reset-btn">清零</button></div></div>`;
         const b = document.getElementById('bnd-paid-badge');
         zone.querySelectorAll('.bnd-note-btn').forEach(btn => {
           btn.onclick = () => {
             paid = Math.round((paid + parseFloat(btn.dataset.val)) * 100) / 100;
             b.textContent = `已付: $${paid.toFixed(2)} / $15.50`; audio.playDing();
-            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showMinecraftToast('💵 刚好 $15.50 BND！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
+            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showMinecraftToast('💵 刚好 $15.50！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
             else if (paid > 15.5) showMinecraftToast('😅 付多啦，点清零重试！', '💵');
           };
         });
@@ -1043,17 +1035,17 @@
       } else if (station.id === 'CHANCELLOR') {
         zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🎓 实体互动 5：电子结业证书颁发台</span><span class="minigame-badge">PNG Certificate</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;"><input id="cert-student-name" type="text" value="Jun (郑国君)" style="flex:1;min-width:150px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:12px;" /><button class="mini-action-btn" id="cert-gen-btn">刷新证书</button><button class="mini-action-btn success" id="cert-dl-btn">⬇️ 下载 PNG</button></div><canvas id="cert-canvas" width="520" height="220"></canvas></div>`;
         function drawCert() {
-          const c = document.getElementById('cert-canvas'), ctx = c.getContext('2d'), nm = document.getElementById('cert-student-name').value || 'UBD Student';
+          const c = document.getElementById('cert-canvas'), ctx = c.getContext('2d'), nm = document.getElementById('cert-student-name').value || 'University Student';
           ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,520,220);
           ctx.strokeStyle = '#facc15'; ctx.lineWidth = 5; ctx.strokeRect(8,8,504,204);
-          ctx.fillStyle = '#facc15'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('UNIVERSITI BRUNEI DARUSSALAM · LANGUAGE CENTRE', 260, 42);
-          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('LEM-1401 / LM-1403 初级华语结业证书', 260, 78);
+          ctx.fillStyle = '#facc15'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('UNIVERSITY · LANGUAGE CENTRE', 260, 42);
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('初级华语结业证书', 260, 78);
           ctx.fillStyle = '#4ade80'; ctx.font = 'bold 24px sans-serif'; ctx.fillText(nm, 260, 125);
-          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed Minecraft Chinese Adventure v2.0 · Level ${player.level}`, 260, 165);
-          ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.fillText(`Dewan Canselor Convocation · ${new Date().toLocaleDateString()}`, 260, 190);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed My University Adventure - Pixel · Level ${player.level}`, 260, 165);
+          ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.fillText(`Chancellor Hall Convocation · ${new Date().toLocaleDateString()}`, 260, 190);
         }
         document.getElementById('cert-gen-btn').onclick = () => { audio.playDing(); drawCert(); };
-        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showMinecraftToast('🎓 结业证书 PNG 已下载！', '🎓'); };
+        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'University_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showMinecraftToast('🎓 结业证书 PNG 已下载！', '🎓'); };
         drawCert();
       }
     }
@@ -1084,7 +1076,7 @@
               spawnCelebrationParticles(player.pos.x, player.pos.y, player.pos.z, station.beaconColor);
               document.getElementById('exp-level-text').textContent = player.level;
               document.getElementById('exp-bar-fill').style.width = `${player.exp}%`;
-              const nxt = UBD_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.act === station.act + 1);
+              const nxt = UNI_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.act === station.act + 1);
               if (nxt) nxt.unlocked = true;
               updateQuestTrackerUI(); drawFullCampusMap();
               fb.className = 'feedback-success';
@@ -1119,7 +1111,7 @@
     function renderVocabBookCards(act = 'ALL', btn = null) {
       if (btn) { document.querySelectorAll('#vocab-filter-tabs .vocab-tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
       const grid = document.getElementById('vocab-book-grid'); grid.innerHTML = '';
-      (act === 'ALL' ? UBD_VOCAB_HANDBOOK : UBD_VOCAB_HANDBOOK.filter(v => v.act === act)).forEach(item => {
+      (act === 'ALL' ? UNI_VOCAB_HANDBOOK : UNI_VOCAB_HANDBOOK.filter(v => v.act === act)).forEach(item => {
         const c = document.createElement('div'); c.className = 'vocab-item-card';
         c.innerHTML = `<div><div style="font-size:10px;color:#facc15;font-weight:bold;">Act ${item.act} · [${item.pinyin}]</div><div class="vocab-word-lg">${item.word}</div><div class="vocab-meaning-en">${item.en}</div><div class="vocab-example-line">${item.ex}</div></div><div style="display:flex;gap:6px;"><button class="speak-audio-btn" style="margin:0;flex:1;justify-content:center;" onclick="speakChinese('${item.raw}',0.85)">🔊 常速</button><button class="speak-audio-btn" style="margin:0;flex:1;justify-content:center;border-color:#f97316;color:#fdba74;" onclick="speakChinese('${item.raw}',0.55)">🐢 慢速</button></div>`;
         grid.appendChild(c);
@@ -1138,7 +1130,7 @@
       const hintBox = document.getElementById('quiz-prop-hint-box');
 
       if (p.id === 'compass') {
-        const target = UBD_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed) || UBD_CAMPUS_REGISTRY[0];
+        const target = UNI_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed) || UNI_CAMPUS_REGISTRY[0];
         if (!isQuiz) {
           player.pos.set(target.x, 1.7 + getTerrainHeightAt(target.x, target.z + 9), target.z + 9);
           player.yaw = 0;
@@ -1167,7 +1159,7 @@
           showMinecraftToast('💡 已排除 2 个错误选项！', '💡');
         } else showMinecraftToast('💡 请先按 [E] 打开题目后再使用锦囊排错笔！', '💡');
       } else if (p.id === 'repeater') {
-        const txt = (isQuiz && currentActiveQuizStation) ? currentActiveQuizStation.learning.quizzes[currentActiveQuizIndex].question : (activeStationNear && activeStationNear.learning ? activeStationNear.learning.dialogue : '欢迎来到文莱大学');
+        const txt = (isQuiz && currentActiveQuizStation) ? currentActiveQuizStation.learning.quizzes[currentActiveQuizIndex].question : (activeStationNear && activeStationNear.learning ? activeStationNear.learning.dialogue : '欢迎来到大学');
         speakChinese(txt, 0.55);
         if (isQuiz) { hintBox.style.display = 'block'; hintBox.innerHTML = '🔊 <strong>【0.55x 慢速复读机领读中】</strong>：请大声跟读！'; }
         showMinecraftToast('🐢 正在以 0.55x 慢速清晰领读！', '🔊');
@@ -1188,7 +1180,7 @@
       const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2, cy = h/2, r = 52, sc = r / 260;
       ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,w,h);
       ctx.strokeStyle = 'rgba(71,85,105,0.45)'; ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
-      UBD_CAMPUS_REGISTRY.forEach(st => {
+      UNI_CAMPUS_REGISTRY.forEach(st => {
         let dx = (st.x - player.pos.x)*sc, dz = (st.z - player.pos.z)*sc, d = Math.hypot(dx,dz);
         if (d > r-4) { dx = (dx/d)*(r-4); dz = (dz/d)*(r-4); }
         ctx.fillStyle = st.color; ctx.beginPath(); ctx.arc(cx+dx, cy+dz, st.type==='active'?4:2.5, 0, Math.PI*2); ctx.fill();
@@ -1201,7 +1193,7 @@
       const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2, cy = h/2 + 12, sx = 1.15, sz = 0.58;
       ctx.fillStyle = '#143823'; ctx.fillRect(0,0,w,h);
       ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(cx+15*sx, cy-150*sz, 40, 20, 0, 0, Math.PI*2); ctx.fill();
-      UBD_CAMPUS_REGISTRY.forEach(st => {
+      UNI_CAMPUS_REGISTRY.forEach(st => {
         const mx = cx + st.x*sx, my = cy + st.z*sz;
         ctx.fillStyle = st.color; ctx.beginPath(); ctx.arc(mx, my, st.type==='active'?9:6, 0, Math.PI*2); ctx.fill();
         if (st.type==='active' && st.unlocked && !st.completed) { ctx.strokeStyle='#facc15'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(mx,my,12,0,Math.PI*2); ctx.stroke(); }
@@ -1222,7 +1214,7 @@
     }
 
     function updateQuestTrackerUI() {
-      const cur = UBD_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed);
+      const cur = UNI_CAMPUS_REGISTRY.find(s => s.type === 'active' && s.unlocked && !s.completed);
       if (cur) {
         document.getElementById('hud-act-badge').textContent = `Act ${cur.act}`;
         document.getElementById('hud-quest-name').innerHTML = cur.nameCn;
@@ -1231,7 +1223,7 @@
       } else {
         document.getElementById('hud-act-badge').textContent = 'ALL CLEAR';
         document.getElementById('hud-quest-name').innerHTML = '🏆 毕业认证达成！';
-        document.getElementById('hud-quest-desc').textContent = '已完成 UBD 初级华语全部 5 大实训关卡！';
+        document.getElementById('hud-quest-desc').textContent = '已完成大学初级华语全部 5 大实训关卡！';
       }
       applyToneLensToDOM();
     }
@@ -1254,8 +1246,8 @@
         const data = await res.json();
         if (Array.isArray(data.stations)) {
           data.stations.forEach(ext => {
-            const idx = UBD_CAMPUS_REGISTRY.findIndex(s => s.id === ext.id);
-            if (idx >= 0) Object.assign(UBD_CAMPUS_REGISTRY[idx], ext);
+            const idx = UNI_CAMPUS_REGISTRY.findIndex(s => s.id === ext.id);
+            if (idx >= 0) Object.assign(UNI_CAMPUS_REGISTRY[idx], ext);
           });
           updateQuestTrackerUI(); drawFullCampusMap();
         }
@@ -1298,7 +1290,7 @@
       document.getElementById('full-map-canvas').addEventListener('click', e => {
         const c = e.target, r = c.getBoundingClientRect();
         const cx = (e.clientX - r.left)*(c.width/r.width), cy = (e.clientY - r.top)*(c.height/r.height);
-        UBD_CAMPUS_REGISTRY.forEach(st => {
+        UNI_CAMPUS_REGISTRY.forEach(st => {
           const mx = c.width/2 + st.x*1.15, my = c.height/2 + 12 + st.z*0.58;
           if (Math.hypot(cx - mx, cy - my) < 18) {
             audio.playDing();
