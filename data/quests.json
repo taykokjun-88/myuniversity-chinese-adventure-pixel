@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "course": "UBD LEM-1401 / LM-1403 Mandarin 1",
+  "note": "直接在 GitHub 网页端编辑此 JSON 文件即可热更新课程配置，或将 type 从 future 改为 active 激活新学院！",
+  "stations": [
+    {"id": "LC", "act": 1, "type": "active", "name": "Language Centre (Pusat Bahasa)", "x": 135, "z": 30},
+    {"id": "SPORTS", "act": 2, "type": "active", "name": "UBD Sports Complex (Kompleks Sukan)", "x": -220, "z": -35},
+    {"id": "COMMERCIAL", "act": 3, "type": "active", "name": "The Core Concourse (Koperasi UBD)", "x": 150, "z": -250},
+    {"id": "DINING", "act": 4, "type": "active", "name": "UBD Student Canteen (Medan Selera)", "x": -35, "z": -45},
+    {"id": "CHANCELLOR", "act": 5, "type": "active", "name": "Chancellor Hall (Dewan Canselor)", "x": -95, "z": 110}
+  ]
+}
