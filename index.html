@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>UBD 麦块中文大冒险 v2.0 · 真实校园沉浸互动版</title>
+  <title>麦块中文大冒险 v2.0 · 校园沉浸互动版</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -164,7 +164,7 @@
 
     <div id="top-nav-bar">
       <div class="hud-badge">
-        <div class="hud-main-title">UBD MINECRAFT CHINESE ADVENTURE v2.0</div>
+        <div class="hud-main-title">MINECRAFT CHINESE ADVENTURE v2.0</div>
         <div class="hud-sub-zone">
           <span class="zone-indicator"></span>
           <span id="current-zone-label">📍 当前区域: UBD 中央校道环岛 (Main Roundabout)</span>
@@ -314,7 +314,7 @@
 
     <!-- Start Overlay -->
     <div id="start-screen-overlay">
-      <h1 style="font-size:28px;color:#facc15;font-weight:900;">UBD 麦块中文大冒险 v2.0</h1>
+      <h1 style="font-size:28px;color:#facc15;font-weight:900;">麦块中文大冒险 v2.0</h1>
       <p style="font-size:14px;color:#94a3b8;margin-top:6px;">Universiti Brunei Darussalam · 3D 立体导师 · 长城石阶地形 · 5 大实体互动关卡</p>
       <button class="start-play-btn" id="start-game-btn">进入文大校园 (ENTER CAMPUS)</button>
       <div class="control-guide-box">
@@ -1049,11 +1049,11 @@
           ctx.fillStyle = '#facc15'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('UNIVERSITI BRUNEI DARUSSALAM · LANGUAGE CENTRE', 260, 42);
           ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('LEM-1401 / LM-1403 初级华语结业证书', 260, 78);
           ctx.fillStyle = '#4ade80'; ctx.font = 'bold 24px sans-serif'; ctx.fillText(nm, 260, 125);
-          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed UBD Minecraft Mandarin Adventure v2.0 · Level ${player.level}`, 260, 165);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed Minecraft Chinese Adventure v2.0 · Level ${player.level}`, 260, 165);
           ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.fillText(`Dewan Canselor Convocation · ${new Date().toLocaleDateString()}`, 260, 190);
         }
         document.getElementById('cert-gen-btn').onclick = () => { audio.playDing(); drawCert(); };
-        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'UBD_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showMinecraftToast('🎓 结业证书 PNG 已下载！', '🎓'); };
+        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showMinecraftToast('🎓 结业证书 PNG 已下载！', '🎓'); };
         drawCert();
       }
     }

@@ -1,4 +1,4 @@
-# UBD 麦块中文大冒险 v2.0 (UBD Minecraft Chinese Adventure)
+# 麦块中文大冒险 v2.0 (Minecraft Chinese Adventure)
 
 专为文莱大学（Universiti Brunei Darussalam）初级华语课程（**LEM-1401 / LM-1403**）打造的 3D 第一人称体素开放校园中文学习 RPG。
 
