@@ -155,7 +155,7 @@
     .dpad-up { top: 0; left: 39px; } .dpad-down { bottom: 0; left: 39px; } .dpad-left { top: 39px; left: 0; } .dpad-right { top: 39px; right: 0; }
     .touch-actions { display: flex; gap: 10px; pointer-events: auto; }
     .touch-btn { width: 52px; height: 52px; border-radius: 50%; background: rgba(37,99,235,0.85); border: 2px solid rgba(255,255,255,0.5); color: #fff; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
+  
     /* === v3.0 Character & Wardrobe (角色与时装系统) === */
     .char-tabs { display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 2px solid #334155; padding-bottom: 8px; }
     .char-tab-btn { background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 800; cursor: pointer; }
@@ -170,12 +170,32 @@
     .outfit-card:hover { border-color: #38bdf8; transform: translateY(-2px); }
     .outfit-card.equipped { border-color: #facc15; background: rgba(234, 179, 8, 0.14); box-shadow: 0 0 12px rgba(250, 204, 21, 0.35); }
     .outfit-swatch { width: 38px; height: 38px; border-radius: 6px; margin: 0 auto 6px; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+  
+    #cursor-lock-hint {
+      position: absolute;
+      top: 56%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid #38bdf8;
+      color: #e0f2fe;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+      z-index: 26;
+      display: none;
+    }
+
   </style>
 </head>
 <body>
   <div id="game-container">
     <canvas id="webgl-canvas"></canvas>
     <div id="crosshair"></div>
+    <div id="cursor-lock-hint">🖱️ 点击画面即可重新锁定鼠标视角 (Click screen to lock cursor)</div>
 
     <div id="top-nav-bar">
       <div class="hud-badge">
@@ -206,8 +226,8 @@
       <div class="quest-station-name" id="hud-quest-name">语言中心 · 第八研讨室</div>
       <div class="quest-task-desc" id="hud-quest-desc">沿长城石阶登上东侧山脊，寻找王老师完成汉字笔画临摹与拼音实训。</div>
       <div class="quest-coords-row">
-        <span id="hud-quest-coords">目标坐标: X: 115.6, Z: 23.1</span>
-        <span id="hud-quest-dist" style="color: #facc15; font-weight: bold;">距离: 118m</span>
+        <span id="hud-quest-coords">目标坐标: X: 135, Z: 30</span>
+        <span id="hud-quest-dist" style="color: #facc15; font-weight: bold;">距离: 138m</span>
       </div>
     </div>
 
@@ -260,9 +280,9 @@
     <div class="modal-overlay" id="campus-map-modal">
       <div class="mc-window" style="max-width: 800px;">
         <button class="close-modal-btn" id="close-map-btn">×</button>
-        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ Google Maps 1:3 比例真实校园地图 (1单位 = 3米)</h2>
+        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">🗺️ 大学 (University) 真实校园宏观大地图</h2>
         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
-          基于 Google Maps 真实经纬度与 Plus Code 解码测绘（以中央图书馆为原点，按 <strong>1:3 比例</strong>等比缩小）：还原真实建筑相对方位、道路走向与距离比例。<strong>点击任意站点即可直接传送！</strong>
+          按真实 University 校园方位测绘：南大门 Chancellor Hall、东侧山脊长城石阶与语言中心、西侧体育中心、东北端 The Core 公寓、中央餐厅与湖畔清真寺。<strong>点击任意站点即可直接传送前往！</strong>
         </p>
         <div style="width: 100%; height: 390px; background: #020617; border: 2px solid #334155; border-radius: 8px; overflow: hidden;">
           <canvas id="full-map-canvas" width="760" height="390" style="width: 100%; height: 100%; display: block;"></canvas>
@@ -316,7 +336,7 @@
     <div class="modal-overlay" id="vocab-book-modal" style="z-index: 115;">
       <div class="mc-window" style="max-width: 780px;">
         <button class="close-modal-btn" id="close-vocab-btn">×</button>
-        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">📖 University 初级华语随身生词本</h2>
+        <h2 style="font-size: 18px; margin-bottom: 6px; color: #facc15;">📖 University 初级华语随身生词本 (/ LM-1403)</h2>
         <div class="vocab-filter-tabs" id="vocab-filter-tabs">
           <button class="vocab-tab-btn active" onclick="renderVocabBookCards('ALL', this)">全部词汇</button>
           <button class="vocab-tab-btn" onclick="renderVocabBookCards(1, this)">Act 1 语言中心</button>
@@ -324,10 +344,16 @@
           <button class="vocab-tab-btn" onclick="renderVocabBookCards(3, this)">Act 3 商业市集</button>
           <button class="vocab-tab-btn" onclick="renderVocabBookCards(4, this)">Act 4 餐厅工坊</button>
           <button class="vocab-tab-btn" onclick="renderVocabBookCards(5, this)">Act 5 总理礼堂</button>
+          <button class="vocab-tab-btn" onclick="renderVocabBookCards(6, this)">Act 6 图书馆</button>
+          <button class="vocab-tab-btn" onclick="renderVocabBookCards(7, this)">Act 7 人文学院</button>
+          <button class="vocab-tab-btn" onclick="renderVocabBookCards(8, this)">Act 8 理学院</button>
+          <button class="vocab-tab-btn" onclick="renderVocabBookCards(9, this)">Act 9 健康学院</button>
+          <button class="vocab-tab-btn" onclick="renderVocabBookCards(10, this)">Act 10 清真寺</button>
         </div>
         <div class="vocab-grid" id="vocab-book-grid"></div>
       </div>
     </div>
+
 
     <!-- Modal 4: Character Sheet & Fashion Wardrobe (角色与时装系统) -->
     <div class="modal-overlay" id="character-modal" style="z-index: 120;">
@@ -354,9 +380,9 @@
                 <input id="char-name-input" type="text" value="Jun (郑国君)" style="width:100%;padding:7px 10px;border-radius:6px;border:1.5px solid #475569;background:#1e293b;color:#fff;font-size:13px;" />
               </div>
               <div class="char-stat-row"><span>🎖️ 当前等级 (Level)</span><strong id="stat-level" style="color:#4ade80;">Lv. 1</strong></div>
-              <div class="char-stat-row"><span>🏆 主线通关进度 (Acts Cleared)</span><strong id="stat-acts" style="color:#facc15;">0 / 5</strong></div>
+              <div class="char-stat-row"><span>🏆 主线通关进度 (Acts Cleared)</span><strong id="stat-acts" style="color:#facc15;">0 / 10</strong></div>
               <div class="char-stat-row"><span>👕 已穿戴时装 (Equipped Outfit)</span><strong id="stat-outfit" style="color:#38bdf8;">经典青衫</strong></div>
-              <div class="char-stat-row"><span>⚡ 移动速度 (Move Speed)</span><strong id="stat-speed">18 u/s</strong></div>
+              <div class="char-stat-row"><span>⚡ 移动速度 (Move Speed)</span><strong id="stat-speed">18 m/s (约 54m/s 比例)</strong></div>
               <div class="char-stat-row"><span>📍 当前真实坐标 (1:3 Scale)</span><strong id="stat-coords" style="font-family:monospace;">X: 0, Z: 15</strong></div>
             </div>
 
@@ -377,15 +403,15 @@
       <div class="control-guide-box">
         <p style="font-weight:bold;color:#facc15;margin-bottom:6px;">🎮 操作指南 (Controls):</p>
         <p>• <strong>W / A / S / D</strong> 或 <strong>方向键</strong>：移动 | <strong>Space</strong>：跳跃 | <strong>鼠标移动</strong>：环顾视角</p>
-        <p>• <strong>E 键</strong>：与 3D 导师 NPC 对话，体验毛笔笔画板 / 射靶 / 货币付款 / 量词合成 / 结业证书</p>
+        <p>• <strong>E 键</strong>：与 3D 导师 NPC 对话，体验毛笔笔画板 / 射靶 / 文币付款 / 量词合成 / 结业证书</p>
         <p>• <strong>1 - 6 数字键</strong>：触发 6 大中文学习辅助道具（罗盘 / 四声透视 / 生词本 / 排错笔 / 慢速复读 / 椰浆饭）</p>
-        <p>• <strong>C 键</strong>：打开角色属性与时装衣橱 | <strong>V 键</strong>：切换第一/第三人称视角（查看时装外观）</p>
-        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开 1:3 Google Maps 校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
+        <p>• <strong>L 键</strong>：切换正午 / 黄昏 / 夜晚光影 | <strong>M 键</strong>：展开 University 校园全图传送 | <strong>ESC</strong>：释放鼠标</p>
       </div>
     </div>
   </div>
 
   <script>
+    // 1. Web Audio API 音效引擎 & 语音朗读
     class SoundEngine {
       constructor() { this.ctx = null; this.enabled = true; }
       init() {
@@ -448,6 +474,7 @@
       t._timer = setTimeout(() => { t.style.display = 'none'; }, 3200);
     }
 
+    // 2. University 校园真实地标注册表 (支持外部 ./data/quests.json 热更新)
     const UNI_CAMPUS_REGISTRY = [
       {
         id: 'LC', name: 'Language Centre',
@@ -462,7 +489,9 @@
           keyVocab: '💡 <ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby> (Pinyin) | <ruby>声<rt>shēng</rt></ruby><ruby>调<rt>diào</rt></ruby> (Tones) | <ruby>横<rt>héng</rt></ruby> (一) | <ruby>竖<rt>shù</rt></ruby> (丨)',
           quizzes: [
             { question: '<ruby>汉<rt>hàn</rt></ruby><ruby>语<rt>yǔ</rt></ruby><ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>基<rt>jī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>调<rt>diào</rt></ruby>？', englishPrompt: '[How many basic tones are there in Hanyu Pinyin?]', options: ['两个声调 (2 tones)', '四个声调 (4 tones: ¯ ˊ ˇ ˋ)', '六个声调 (6 tones)', '八个声调 (8 tones)'], correct: 1, explain: '普通话共有四个基本声调：第一声(¯)、第二声(ˊ)、第三声(ˇ)、第四声(ˋ)。' },
-            { question: '“<ruby>十<rt>shí</rt></ruby>”<ruby>字<rt>zì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？', englishPrompt: '[What is the first stroke of "十" (shí)?]', options: ['<ruby>横<rt>héng</rt></ruby> (Horizontal 一)', '<ruby>竖<rt>shù</rt></ruby> (Vertical 丨)', '<ruby>撇<rt>piě</rt></ruby> (Slash 丿)', '<ruby>捺<rt>nà</rt></ruby> (Press ㇏)'], correct: 0, explain: '根据汉字“先横后竖”规则，“十”先写一横，再写一竖。' }
+            { question: '“<ruby>十<rt>shí</rt></ruby>”<ruby>字<rt>zì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？', englishPrompt: '[What is the first stroke of "十" (shí)?]', options: ['<ruby>横<rt>héng</rt></ruby> (Horizontal 一)', '<ruby>竖<rt>shù</rt></ruby> (Vertical 丨)', '<ruby>撇<rt>piě</rt></ruby> (Slash 丿)', '<ruby>捺<rt>nà</rt></ruby> (Press ㇏)'], correct: 0, explain: '根据汉字“先横后竖”规则，“十”先写一横，再写一竖。' },
+            { question: '“<ruby>你<rt>nǐ</rt></ruby><ruby>好<rt>hǎo</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>字<rt>zì</rt></ruby>“<ruby>你<rt>nǐ</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>第<rt>dì</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>声<rt>shēng</rt></ruby>？', englishPrompt: '[Which tone is "nǐ" in "你好" (Hello)?]', options: ['第一声 (1st tone)', '第二声 (2nd tone)', '第三声 (3rd tone ˇ)', '第四声 (4th tone)'], correct: 2, explain: '“nǐ”标注为第三声（上声 ˇ），但在连读“nǐ hǎo”时口语会变调为“ní hǎo”。' },
+            { question: '“<ruby>人<rt>rén</rt></ruby>”<ruby>字<rt>zì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>画<rt>huà</rt></ruby>？', englishPrompt: '[How many strokes does the character "人" (person) have?]', options: ['1 stroke', '2 strokes (先撇后捺)', '3 strokes', '4 strokes'], correct: 1, explain: '“人”字共两画：先写撇(丿)，再写捺(㇏)。' }
           ]
         }
       },
@@ -479,7 +508,9 @@
           keyVocab: '💡 <ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby> (Turn left) | <ruby>快<rt>kuài</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby> (Run) | <ruby>脚<rt>jiǎo</rt></ruby> (Foot)',
           quizzes: [
             { question: '“<ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>快<rt>kuài</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby>？', englishPrompt: '[What do "向左转" and "快点跑" mean?]', options: ['Turn right and walk', 'Turn left and run quickly', 'Jump up and stop', 'Sit down'], correct: 1, explain: '“向左转”是 Turn left，“快点跑”是 Run quickly。' },
-            { question: '<ruby>足<rt>zú</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>踢<rt>tī</rt></ruby>？', englishPrompt: '[Which body part is used to kick a football?]', options: ['<ruby>手<rt>shǒu</rt></ruby> (Hand)', '<ruby>头<rt>tóu</rt></ruby> (Head)', '<ruby>脚<rt>jiǎo</rt></ruby> (Foot)', '<ruby>眼<rt>yǎn</rt></ruby><ruby>睛<rt>jing</rt></ruby> (Eyes)'], correct: 2, explain: '踢足球主要用“脚”(jiǎo)。' }
+            { question: '<ruby>足<rt>zú</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>踢<rt>tī</rt></ruby>？', englishPrompt: '[Which body part is used to kick a football?]', options: ['<ruby>手<rt>shǒu</rt></ruby> (Hand)', '<ruby>头<rt>tóu</rt></ruby> (Head)', '<ruby>脚<rt>jiǎo</rt></ruby> (Foot)', '<ruby>眼<rt>yǎn</rt></ruby><ruby>睛<rt>jing</rt></ruby> (Eyes)'], correct: 2, explain: '踢足球主要用“脚”(jiǎo)。' },
+            { question: '<ruby>打<rt>dǎ</rt></ruby><ruby>排<rt>pái</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>或<rt>huò</rt></ruby><ruby>篮<rt>lán</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>主<rt>zhǔ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？', englishPrompt: '[Which body part is used to play volleyball or basketball?]', options: ['<ruby>手<rt>shǒu</rt></ruby> (Hands)', '<ruby>耳<rt>ěr</rt></ruby><ruby>朵<rt>duo</rt></ruby> (Ears)', '<ruby>鼻<rt>bí</rt></ruby><ruby>子<rt>zi</rt></ruby> (Nose)', '<ruby>嘴<rt>zuǐ</rt></ruby><ruby>巴<rt>ba</rt></ruby> (Mouth)'], correct: 0, explain: '打排球、篮球主要用“手”(shǒu)，动词搭配“打”。' },
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>喜<rt>xǐ</rt></ruby><ruby>欢<rt>huan</rt></ruby><ruby>游<rt>yóu</rt></ruby><ruby>泳<rt>yǒng</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>英<rt>yīng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[Translate "我喜欢游泳" into English:]', options: ['I like running', 'I like swimming', 'I like jumping', 'I like sleeping'], correct: 1, explain: '“游泳”(yóu yǒng) 意为 swimming。' }
           ]
         }
       },
@@ -496,7 +527,9 @@
           keyVocab: '💡 <ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby> (How much) | <ruby>块<rt>kuài</rt></ruby> ($) | <ruby>毛<rt>máo</rt></ruby> (10¢)',
           quizzes: [
             { question: '“<ruby>请<rt>qǐng</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>？”<ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "请问这本书多少钱？" mean?]', options: ['Where is this book?', 'Excuse me, how much is this book?', 'May I borrow it?', 'Who wrote it?'], correct: 1, explain: '“请问”是 Excuse me，“多少钱”是 How much。' },
-            { question: '“<ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby>？', englishPrompt: '[What amount is "十五块五毛钱"?]', options: ['$10.50', '$15.05', '$15.50', '$50.15'], correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50。' }
+            { question: '“<ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby>？', englishPrompt: '[What amount is "十五块五毛钱"?]', options: ['$10.50', '$15.05', '$15.50', '$50.15'], correct: 2, explain: '十五块(15) + 五毛(0.50) = $15.50。' },
+            { question: '“<ruby>太<rt>tài</rt></ruby><ruby>贵<rt>guì</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>便<rt>pián</rt></ruby><ruby>宜<rt>yi</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>点<rt>diǎn</rt></ruby>”<ruby>用<rt>yòng</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>场<rt>chǎng</rt></ruby><ruby>景<rt>jǐng</rt></ruby>？', englishPrompt: '[When do you say "太贵了，便宜一点"?]', options: ['Asking for directions', 'Bargaining for a lower price', 'Ordering hot tea', 'Saying goodbye'], correct: 1, explain: '“太贵了”表示 Too expensive，“便宜一点”表示 a bit cheaper（讨价还价）。' },
+            { question: '“<ruby>两<rt>liǎng</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>三<rt>sān</rt></ruby><ruby>块<rt>kuài</rt></ruby><ruby>钱<rt>qián</rt></ruby>”<ruby>一<rt>yī</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>？', englishPrompt: '[What is $2 + $3 in Chinese?]', options: ['四块钱 ($4)', '五块钱 ($5)', '六块钱 ($6)', '十块钱 ($10)'], correct: 1, explain: '两块(2) + 三块(3) = 五块钱 ($5)。' }
           ]
         }
       },
@@ -513,7 +546,9 @@
           keyVocab: '💡 <ruby>一<rt>yī</rt></ruby><ruby>碗<rt>wǎn</rt></ruby><ruby>面<rt>miàn</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>杯<rt>bēi</rt></ruby><ruby>茶<rt>chá</rt></ruby> | <ruby>一<rt>yī</rt></ruby><ruby>盘<rt>pán</rt></ruby><ruby>饭<rt>fàn</rt></ruby> | <ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>',
           quizzes: [
             { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>要<rt>yào</rt></ruby>一___<ruby>干<rt>gān</rt></ruby><ruby>捞<rt>lāo</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>和<rt>hé</rt></ruby>一___<ruby>拉<rt>lā</rt></ruby><ruby>茶<rt>chá</rt></ruby>”<ruby>应<rt>yīng</rt></ruby><ruby>填<rt>tián</rt></ruby>：', englishPrompt: '[Choose the correct measure words for noodles and tea:]', options: ['张 / 条', '碗 / 杯 (bowl / cup)', '块 / 个', '双 / 只'], correct: 1, explain: '面用“一碗面”，茶用“一杯茶”。' },
-            { question: '“<ruby>服<rt>fú</rt></ruby><ruby>务<rt>wù</rt></ruby><ruby>员<rt>yuán</rt></ruby>，<ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>！”<ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：', englishPrompt: '[What does "服务员，买单！" mean?]', options: ['Bring the menu', 'The bill please!', 'More water', 'Food is cold'], correct: 1, explain: '“买单”即请求结账付款 (The bill please)。' }
+            { question: '“<ruby>服<rt>fú</rt></ruby><ruby>务<rt>wù</rt></ruby><ruby>员<rt>yuán</rt></ruby>，<ruby>买<rt>mǎi</rt></ruby><ruby>单<rt>dān</rt></ruby>！”<ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：', englishPrompt: '[What does "服务员，买单！" mean?]', options: ['Bring the menu', 'The bill please!', 'More water', 'Food is cold'], correct: 1, explain: '“买单”即请求结账付款 (The bill please)。' },
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>辣<rt>là</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby>？', englishPrompt: '[What does "我不吃辣" mean?]', options: ['I love sweet food', 'I do not eat spicy food', 'I am full', 'I want ice water'], correct: 1, explain: '“辣”(là) 指 spicy，“我不吃辣”即不吃辣味食物。' },
+            { question: '“<ruby>好<rt>hǎo</rt></ruby><ruby>吃<rt>chī</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>好<rt>hǎo</rt></ruby><ruby>喝<rt>hē</rt></ruby>”<ruby>分<rt>fēn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>形<rt>xíng</rt></ruby><ruby>容<rt>róng</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？', englishPrompt: '[What do "好吃" and "好喝" describe respectively?]', options: ['Food / Drinks', 'Books / Clothes', 'Morning / Night', 'Big / Small'], correct: 0, explain: '“好吃”形容食物美味，“好喝”形容饮品可口。' }
           ]
         }
       },
@@ -530,21 +565,113 @@
           keyVocab: '💡 <ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby> (Graduation) | <ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>',
           quizzes: [
             { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>为<rt>wéi</rt></ruby>：', englishPrompt: '[Choose the English meaning:]', options: ['I teach English at University', 'I study Chinese at University', 'I am on holiday', 'I work at Chancellor Hall'], correct: 1, explain: '“我在大学学习中文”意为 I study Chinese at University。' },
-            { question: '<ruby>向<rt>xiàng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：', englishPrompt: '[How do you sincerely thank your teacher at convocation?]', options: ['对不起 (Sorry)', '没关系 (No problem)', '谢谢老师，您辛苦了！', '明天见 (See you tomorrow)'], correct: 2, explain: '“谢谢老师，您辛苦了！”是最得体的尊师致谢表达。' }
+            { question: '<ruby>向<rt>xiàng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：', englishPrompt: '[How do you sincerely thank your teacher at convocation?]', options: ['对不起 (Sorry)', '没关系 (No problem)', '谢谢老师，您辛苦了！', '明天见 (See you tomorrow)'], correct: 2, explain: '“谢谢老师，您辛苦了！”是最得体的尊师致谢表达。' },
+            { question: '“<ruby>祝<rt>zhù</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>毕<rt>bì</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>乐<rt>lè</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "祝你毕业快乐" mean?]', options: ['Happy Birthday', 'Happy Graduation', 'Happy New Year', 'Good Morning'], correct: 1, explain: '“毕业”(bì yè) 指 Graduation，“快乐”指 Happy。' },
+            { question: '“<ruby>再<rt>zài</rt></ruby><ruby>见<rt>jiàn</rt></ruby>”<ruby>通<rt>tōng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>候<rt>hou</rt></ruby><ruby>说<rt>shuō</rt></ruby>？', englishPrompt: '[When do we say "再见 (zài jiàn)"?]', options: ['When meeting someone', 'When parting / saying goodbye', 'When ordering food', 'When apologizing'], correct: 1, explain: '“再见”意为 Goodbye / See you again。' }
           ]
         }
       },
-      { id: 'LIBRARY', name: 'University Central Library', nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>', desc: '校园中心原点坐标 (0, 0) 文献大楼（可在 data/quests.json 中激活）。', x: 0, z: 0, color: '#6366f1', beaconColor: 0x6366f1, type: 'future', act: null, icon: '📚', npc: { name: '馆长助理', role: '图书馆顾问', avatar: '👩‍🏫' }, futureFeature: '学术文献检索中文模块' },
-      { id: 'FASS', name: 'Faculty of Arts & Social Sciences', nameCn: '<ruby>人<rt>rén</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '图书馆西侧 153m 红砖庭院教学楼（预留拓展区）。', x: -50.9, z: -4.7, color: '#8b5cf6', beaconColor: 0x8b5cf6, type: 'future', act: null, icon: '🎭', npc: { name: '人文讲师', role: 'FASS 学者', avatar: '👨‍🏫' }, futureFeature: '跨文化文学与历史中文模块' },
-      { id: 'FOS', name: 'Faculty of Science', nameCn: '<ruby>理<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '自然科学实验楼群（预留拓展区）。', x: 65, z: -75, color: '#14b8a6', beaconColor: 0x14b8a6, type: 'future', act: null, icon: '🔬', npc: { name: '李博士', role: '热带生态研究员', avatar: '👨‍🔬' }, futureFeature: '环境科技汉语模块' },
-      { id: 'IHS', name: 'Institute of Health Sciences', nameCn: '<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>', desc: '医学院大楼（预留拓展区）。', x: 130, z: -60, color: '#06b6d4', beaconColor: 0x06b6d4, type: 'future', act: null, icon: '🩺', npc: { name: 'Dr. Nurul', role: '临床导师', avatar: '👩‍⚕️' }, futureFeature: '医护问诊中文模块' },
-      { id: 'MOSQUE', name: 'University Mosque', nameCn: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>', desc: '北部景观湖畔清真寺（预留拓展区）。', x: 55, z: -160, color: '#84cc16', beaconColor: 0x84cc16, type: 'future', act: null, icon: '🕌', npc: { name: '文化学者', role: '文化遗产中心', avatar: '👳‍♂️' }, futureFeature: '传统文化交流模块' }
+      {
+        id: 'LIBRARY', name: 'University Central Library',
+        nameCn: '<ruby>中<rt>zhōng</rt></ruby><ruby>央<rt>yāng</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>',
+        desc: 'Google Maps 1:3 原点坐标 (0, 0)：学习图书馆借阅、书籍量词与学习用语。',
+        x: 0, z: 0, color: '#6366f1', beaconColor: 0x6366f1, type: 'active', act: 6, icon: '📚', unlocked: true, completed: false,
+        npc: { name: '<ruby>林<rt>lín</rt></ruby><ruby>馆<rt>guǎn</rt></ruby><ruby>长<rt>zhǎng</rt></ruby> (Librarian Lin)', role: '中央图书馆学术顾问', avatar: '👩‍🏫' },
+        learning: {
+          topic: 'Act 6: <ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>借<rt>jiè</rt></ruby><ruby>阅<rt>yuè</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>语<rt>yǔ</rt></ruby>',
+          dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>！<ruby>请<rt>qǐng</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>静<rt>jìng</rt></ruby>，<ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>阅<rt>yuè</rt></ruby><ruby>读<rt>dú</rt></ruby><ruby>实<rt>shí</rt></ruby><ruby>训<rt>xùn</rt></ruby>。',
+          englishTranslation: '"Welcome to the University Library! Please keep quiet and start the reading drill."',
+          keyVocab: '💡 <ruby>一<rt>yī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby> (A book) | <ruby>借<rt>jiè</rt></ruby><ruby>书<rt>shū</rt></ruby> (Borrow) | <ruby>安<rt>ān</rt></ruby><ruby>静<rt>jìng</rt></ruby> (Quiet)',
+          quizzes: [
+            { question: '“一___<ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>书<rt>shū</rt></ruby>”<ruby>应<rt>yīng</rt></ruby><ruby>该<rt>gāi</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>词<rt>cí</rt></ruby>？', englishPrompt: '[Which measure word is used for books?]', options: ['<ruby>杯<rt>bēi</rt></ruby> (cup)', '<ruby>本<rt>běn</rt></ruby> (volume)', '<ruby>碗<rt>wǎn</rt></ruby> (bowl)', '<ruby>条<rt>tiáo</rt></ruby> (strip)'], correct: 1, explain: '书籍的专用量词是“本”（一本书）。' },
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>借<rt>jiè</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>英<rt>yīng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[Translate "我想借这本书":]', options: ['I want to buy this book', 'I want to borrow this book', 'I lost this book', 'I wrote this book'], correct: 1, explain: '“借”(jiè) 表示 borrow。' },
+            { question: '<ruby>在<rt>zài</rt></ruby><ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby>：', englishPrompt: '[What should everyone keep inside the library?]', options: ['<ruby>大<rt>dà</rt></ruby><ruby>声<rt>shēng</rt></ruby> (Loud)', '<ruby>安<rt>ān</rt></ruby><ruby>静<rt>jìng</rt></ruby> (Quiet)', '<ruby>生<rt>shēng</rt></ruby><ruby>气<rt>qì</rt></ruby> (Angry)', '<ruby>快<rt>kuài</rt></ruby><ruby>跑<rt>pǎo</rt></ruby> (Run)'], correct: 1, explain: '“保持安静”指 keep quiet。' },
+            { question: '“<ruby>还<rt>huán</rt></ruby><ruby>书<rt>shū</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "还书 (huán shū)" mean?]', options: ['Return a book', 'Print a book', 'Read a book', 'Sell a book'], correct: 0, explain: '“还”(huán) 是归还，与“借”(jiè) 相对。' }
+          ]
+        }
+      },
+      {
+        id: 'FASS', name: 'Faculty of Arts & Social Sciences',
+        nameCn: '<ruby>人<rt>rén</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>',
+        desc: 'Google Maps 1:3 测绘：图书馆西侧 153m 红砖庭院教学楼，实训时间与日程表达。',
+        x: -50.9, z: -4.7, color: '#8b5cf6', beaconColor: 0x8b5cf6, type: 'active', act: 7, icon: '🎭', unlocked: true, completed: false,
+        npc: { name: '<ruby>张<rt>zhāng</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>授<rt>shòu</rt></ruby> (Prof. Zhang)', role: '人文社科学院讲师', avatar: '👨‍🏫' },
+        learning: {
+          topic: 'Act 7: <ruby>时<rt>shí</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>课<rt>kè</rt></ruby><ruby>程<rt>chéng</rt></ruby><ruby>表<rt>biǎo</rt></ruby>',
+          dialogue: '<ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>星<rt>xīng</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>几<rt>jǐ</rt></ruby>？<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>课<rt>kè</rt></ruby>？<ruby>一<rt>yī</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>练<rt>liàn</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby>！',
+          englishTranslation: '"What day is it today? What time is class? Let us practice time and dates!"',
+          keyVocab: '💡 <ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby> (Today) | <ruby>星<rt>xīng</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>一<rt>yī</rt></ruby> (Monday) | <ruby>九<rt>jiǔ</rt></ruby><ruby>点<rt>diǎn</rt></ruby> (9:00)',
+          quizzes: [
+            { question: '“<ruby>星<rt>xīng</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>三<rt>sān</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>天<rt>tiān</rt></ruby>？', englishPrompt: '[Which day of the week is "星期三"?]', options: ['Monday', 'Tuesday', 'Wednesday', 'Friday'], correct: 2, explain: '星期一到星期六对应周一至周六，“星期三”是 Wednesday。' },
+            { question: '“<ruby>现<rt>xiàn</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>八<rt>bā</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>半<rt>bàn</rt></ruby>”<ruby>是<rt>shì</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>点<rt>diǎn</rt></ruby>？', englishPrompt: '[What time is "现在八点半"?]', options: ['8:00', '8:15', '8:30', '8:45'], correct: 2, explain: '“半”(bàn) 指 30 分钟，八点半即 8:30。' },
+            { question: '“<ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>课<rt>kè</rt></ruby>”<ruby>中<rt>zhōng</rt></ruby>“<ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby>”<ruby>指<rt>zhǐ</rt></ruby>：', englishPrompt: '[What does "明天" mean?]', options: ['Yesterday', 'Today', 'Tomorrow', 'Next year'], correct: 2, explain: '昨天=Yesterday，今天=Today，明天=Tomorrow。' },
+            { question: '“<ruby>上<rt>shàng</rt></ruby><ruby>课<rt>kè</rt></ruby>”<ruby>与<rt>yǔ</rt></ruby>“<ruby>下<rt>xià</rt></ruby><ruby>课<rt>kè</rt></ruby>”<ruby>分<rt>fēn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：', englishPrompt: '[What do "上课" and "下课" mean?]', options: ['Start class / End class', 'Eat lunch / Sleep', 'Open book / Close door', 'Ask / Answer'], correct: 0, explain: '“上课”是开始上课，“下课”是结束课程。' }
+          ]
+        }
+      },
+      {
+        id: 'FOS', name: 'Faculty of Science',
+        nameCn: '<ruby>理<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>',
+        desc: '自然科学实验楼群，学习天气变化、自然生态与颜色词汇。',
+        x: 65, z: -75, color: '#14b8a6', beaconColor: 0x14b8a6, type: 'active', act: 8, icon: '🔬', unlocked: true, completed: false,
+        npc: { name: '<ruby>李<rt>lǐ</rt></ruby><ruby>博<rt>bó</rt></ruby><ruby>士<rt>shì</rt></ruby> (Dr. Li)', role: '热带生态研究员', avatar: '👨‍🔬' },
+        learning: {
+          topic: 'Act 8: <ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>颜<rt>yán</rt></ruby><ruby>色<rt>sè</rt></ruby>',
+          dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>！<ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>热<rt>rè</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>怎<rt>zěn</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>样<rt>yàng</rt></ruby>？',
+          englishTranslation: '"Welcome to the Faculty of Science! How is the tropical weather today?"',
+          keyVocab: '💡 <ruby>下<rt>xià</rt></ruby><ruby>雨<rt>yǔ</rt></ruby> (Rain) | <ruby>太<rt>tài</rt></ruby><ruby>热<rt>rè</rt></ruby> (Too hot) | <ruby>绿<rt>lǜ</rt></ruby><ruby>色<rt>sè</rt></ruby> (Green)',
+          quizzes: [
+            { question: '“<ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>雨<rt>yǔ</rt></ruby>”<ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "今天下大雨" mean?]', options: ['It is snowing today', 'It is raining heavily today', 'It is very windy', 'It is sunny'], correct: 1, explain: '“下大雨”表示 raining heavily。' },
+            { question: '<ruby>树<rt>shù</rt></ruby><ruby>叶<rt>yè</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>草<rt>cǎo</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>颜<rt>yán</rt></ruby><ruby>色<rt>sè</rt></ruby>？', englishPrompt: '[What color are leaves and grass usually?]', options: ['<ruby>红<rt>hóng</rt></ruby><ruby>色<rt>sè</rt></ruby> (Red)', '<ruby>绿<rt>lǜ</rt></ruby><ruby>色<rt>sè</rt></ruby> (Green)', '<ruby>白<rt>bái</rt></ruby><ruby>色<rt>sè</rt></ruby> (White)', '<ruby>黑<rt>hēi</rt></ruby><ruby>色<rt>sè</rt></ruby> (Black)'], correct: 1, explain: '“绿色”(lǜ sè) 意为 Green。' },
+            { question: '“<ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>热<rt>rè</rt></ruby>”<ruby>中<rt>zhōng</rt></ruby>“<ruby>热<rt>rè</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>反<rt>fǎn</rt></ruby><ruby>义<rt>yì</rt></ruby><ruby>词<rt>cí</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What is the opposite of "热 (hot)"?]', options: ['<ruby>冷<rt>lěng</rt></ruby> (Cold)', '<ruby>大<rt>dà</rt></ruby> (Big)', '<ruby>高<rt>gāo</rt></ruby> (Tall)', '<ruby>快<rt>kuài</rt></ruby> (Fast)'], correct: 0, explain: '“热”(hot) 的反义词是“冷”(lěng, cold)。' },
+            { question: '“<ruby>蓝<rt>lán</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>云<rt>yún</rt></ruby>”<ruby>描<rt>miáo</rt></ruby><ruby>写<rt>xiě</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "蓝天白云" describe?]', options: ['Blue sky and white clouds', 'Dark night and stars', 'Rain and thunder', 'Red flowers'], correct: 0, explain: '“蓝天”= Blue sky，“白云”= White clouds。' }
+          ]
+        }
+      },
+      {
+        id: 'IHS', name: 'Institute of Health Sciences',
+        nameCn: '<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby>',
+        desc: '医学院大楼，实训身体不适表达、看医生与日常健康用语。',
+        x: 130, z: -60, color: '#06b6d4', beaconColor: 0x06b6d4, type: 'active', act: 9, icon: '🩺', unlocked: true, completed: false,
+        npc: { name: 'Dr. Nurul', role: '健康科学学院临床导师', avatar: '👩‍⚕️' },
+        learning: {
+          topic: 'Act 9: <ruby>医<rt>yī</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>诊<rt>zhěn</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby>',
+          dialogue: '<ruby>你<rt>nǐ</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>舒<rt>shū</rt></ruby><ruby>服<rt>fu</rt></ruby>？<ruby>在<rt>zài</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby>！',
+          englishTranslation: '"Where do you feel unwell? Let us practice medical and health Mandarin!"',
+          keyVocab: '💡 <ruby>不<rt>bù</rt></ruby><ruby>舒<rt>shū</rt></ruby><ruby>服<rt>fu</rt></ruby> (Unwell) | <ruby>发<rt>fā</rt></ruby><ruby>烧<rt>shāo</rt></ruby> (Fever) | <ruby>多<rt>duō</rt></ruby><ruby>喝<rt>hē</rt></ruby><ruby>水<rt>shuǐ</rt></ruby> (Drink water)',
+          quizzes: [
+            { question: '“<ruby>我<rt>wǒ</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>疼<rt>téng</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "我头疼 (wǒ tóu téng)" mean?]', options: ['I have a stomachache', 'I have a headache', 'I am hungry', 'I am sleepy'], correct: 1, explain: '“头”(tóu) 是 head，“疼”(téng) 是 ache/pain。' },
+            { question: '“<ruby>感<rt>gǎn</rt></ruby><ruby>冒<rt>mào</rt></ruby>”<ruby>和<rt>hé</rt></ruby>“<ruby>发<rt>fā</rt></ruby><ruby>烧<rt>shāo</rt></ruby>”<ruby>分<rt>fēn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>指<rt>zhǐ</rt></ruby>：', englishPrompt: '[What do "感冒" and "发烧" mean?]', options: ['Catch a cold / Have a fever', 'Exercise / Rest', 'Eat medicine / Sleep', 'Wash hands / Brush teeth'], correct: 0, explain: '“感冒”指 catch a cold，“发烧”指 have a fever。' },
+            { question: '<ruby>医<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>议<rt>yì</rt></ruby>“<ruby>多<rt>duō</rt></ruby><ruby>喝<rt>hē</rt></ruby><ruby>水<rt>shuǐ</rt></ruby>，<ruby>多<rt>duō</rt></ruby><ruby>休<rt>xiū</rt></ruby><ruby>息<rt>xi</rt></ruby>”，<ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does the doctor advise: "多喝水，多休息"?]', options: ['Run faster', 'Drink more water and rest more', 'Eat more spicy food', 'Study all night'], correct: 1, explain: '“多喝水”= Drink more water，“多休息”= Rest more。' },
+            { question: '“<ruby>吃<rt>chī</rt></ruby><ruby>药<rt>yào</rt></ruby>”<ruby>对<rt>duì</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>英<rt>yīng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[How do you say "吃药" in English?]', options: ['Cook dinner', 'Take medicine', 'Buy fruit', 'See a movie'], correct: 1, explain: '中文里服用药物固定搭配动词“吃”——“吃药”(take medicine)。' }
+          ]
+        }
+      },
+      {
+        id: 'MOSQUE', name: 'University Mosque',
+        nameCn: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>',
+        desc: '北部景观湖畔地标，实训方位词（东西南北、前后左右）与校园问路对话。',
+        x: 55, z: -160, color: '#84cc16', beaconColor: 0x84cc16, type: 'active', act: 10, icon: '🕌', unlocked: true, completed: false,
+        npc: { name: '<ruby>阿<rt>ā</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>长<rt>zhǎng</rt></ruby> (Ali)', role: '跨文化交流与校园向导', avatar: '👳‍♂️' },
+        learning: {
+          topic: 'Act 10: <ruby>校<rt>xiào</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>路<rt>lù</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>词<rt>cí</rt></ruby>',
+          dialogue: '<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>湖<rt>hú</rt></ruby><ruby>畔<rt>pàn</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby>！<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>练<rt>liàn</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>校<rt>xiào</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>路<rt>lù</rt></ruby>！',
+          englishTranslation: '"Welcome to the Lakeside Mosque! Let us practice asking for directions on campus."',
+          keyVocab: '💡 <ruby>请<rt>qǐng</rt></ruby><ruby>问<rt>wèn</rt></ruby> (Excuse me) | <ruby>在<rt>zài</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>儿<rt>r</rt></ruby> (Where) | <ruby>往<rt>wǎng</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>走<rt>zǒu</rt></ruby> (Go straight)',
+          quizzes: [
+            { question: '“<ruby>请<rt>qǐng</rt></ruby><ruby>问<rt>wèn</rt></ruby>，<ruby>图<rt>tú</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>馆<rt>guǎn</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>儿<rt>r</rt></ruby>？”<ruby>意<rt>yì</rt></ruby><ruby>思<rt>si</rt></ruby><ruby>是<rt>shì</rt></ruby>：', englishPrompt: '[What does "请问，图书馆在哪儿？" mean?]', options: ['When does the library open?', 'Excuse me, where is the library?', 'Who works at the library?', 'How big is the library?'], correct: 1, explain: '“在哪儿 / 在哪里”用于询问地点 (Where is...)。' },
+            { question: '“<ruby>一<rt>yī</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>走<rt>zǒu</rt></ruby>”<ruby>表<rt>biǎo</rt></ruby><ruby>示<rt>shì</rt></ruby>：', englishPrompt: '[What does "一直往前走" mean?]', options: ['Turn around', 'Walk straight ahead', 'Stop here', 'Turn right'], correct: 1, explain: '“一直往前走”指 Walk straight ahead。' },
+            { question: '<ruby>校<rt>xiào</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>寺<rt>sì</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>景<rt>jǐng</rt></ruby><ruby>观<rt>guān</rt></ruby><ruby>湖<rt>hú</rt></ruby><ruby>的<rt>de</rt></ruby>____<ruby>边<rt>biān</rt></ruby>（East）：', englishPrompt: '[Which character means "East" in Chinese?]', options: ['<ruby>东<rt>dōng</rt></ruby>', '<ruby>西<rt>xī</rt></ruby>', '<ruby>南<rt>nán</rt></ruby>', '<ruby>北<rt>běi</rt></ruby>'], correct: 0, explain: '东=East，西=West，南=South，北=North。' },
+            { question: '“<ruby>离<rt>lí</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>儿<rt>r</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>近<rt>jìn</rt></ruby>”<ruby>与<rt>yǔ</rt></ruby>“<ruby>很<rt>hěn</rt></ruby><ruby>远<rt>yuǎn</rt></ruby>”<ruby>分<rt>fēn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>指<rt>zhǐ</rt></ruby>：', englishPrompt: '[What do "很近" and "很远" mean?]', options: ['Very near / Very far', 'Very tall / Very short', 'Very big / Very small', 'Very new / Very old'], correct: 0, explain: '“近”(jìn) 指 near/close，“远”(yuǎn) 指 far。' }
+          ]
+        }
+      }
     ];
 
     const LEARNING_PROPS = [
       { slot: 1, id: 'compass', name: '寻路罗盘', icon: '🧭', color: 0xfacc15, badge: '导航', desc: '自动转向当前主线建筑并一键传送至目标门口' },
       { slot: 2, id: 'tonelens', name: '声调透视', icon: '🔍', color: 0x38bdf8, badge: '四声', desc: '开启/关闭四声色彩高亮（一声蓝·二声绿·三声黄·四声红）' },
-      { slot: 3, id: 'vocabbook', name: '随身词典', icon: '📖', color: 0xa855f7, badge: '词库', desc: '随时查阅生词本与 0.55x 慢速跟读' },
+      { slot: 3, id: 'vocabbook', name: '随身词典', icon: '📖', color: 0xa855f7, badge: '词库', desc: '随时查阅 生词本与 0.55x 慢速跟读' },
       { slot: 4, id: 'eliminator', name: '锦囊排错', icon: '💡', color: 0x22c55e, badge: '破题', desc: '答题时排除 2 个错误干扰项并显示语法提示' },
       { slot: 5, id: 'repeater', name: '慢速复读', icon: '🔊', color: 0xf97316, badge: '正音', desc: '以 0.55 倍慢速清晰领读当前题干或导师对话' },
       { slot: 6, id: 'nasilemak', name: '椰浆饭', icon: '🍙', color: 0x10b981, badge: '双语', desc: '回满体力并开启 1.6x 疾跑；答题时高亮双语核心词' }
@@ -554,17 +681,28 @@
       { act: 1, word: '<ruby>拼<rt>pīn</rt></ruby><ruby>音<rt>yīn</rt></ruby>', raw: '拼音', pinyin: 'pīn yīn', en: 'Hanyu Pinyin', ex: '学习中文首先要掌握拼音和四个声调。' },
       { act: 1, word: '<ruby>笔<rt>bǐ</rt></ruby><ruby>画<rt>huà</rt></ruby>', raw: '笔画', pinyin: 'bǐ huà', en: 'Character Strokes', ex: '写“十”字先横后竖。' },
       { act: 2, word: '<ruby>向<rt>xiàng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby>', raw: '向左转', pinyin: 'xiàng zuǒ zhuǎn', en: 'Turn left', ex: '听到陈教练口令“向左转”立刻转向。' },
-      { act: 2, word: '<ruby>脚<rt>jiǎo</rt></ruby>', raw: '脚', pinyin: 'jiǎo', en: 'Foot', ex: '踢足球主要用脚。' },
+      { act: 2, word: '<ruby>脚<rt>jiǎo</rt></ruby> / <ruby>手<rt>shǒu</rt></ruby>', raw: '脚和手', pinyin: 'jiǎo / shǒu', en: 'Foot / Hand', ex: '踢足球用脚，打排球用手。' },
       { act: 3, word: '<ruby>多<rt>duō</rt></ruby><ruby>少<rt>shao</rt></ruby><ruby>钱<rt>qián</rt></ruby>', raw: '多少钱', pinyin: 'duō shao qián', en: 'How much?', ex: '请问这本书多少钱？' },
       { act: 3, word: '<ruby>块<rt>kuài</rt></ruby> / <ruby>毛<rt>máo</rt></ruby>', raw: '块和毛', pinyin: 'kuài / máo', en: 'Dollar / 10 Cents', ex: '十五块五毛钱等于 $15.50。' },
       { act: 4, word: '<ruby>一<rt>yī</rt></ruby><ruby>碗<rt>wǎn</rt></ruby><ruby>面<rt>miàn</rt></ruby>', raw: '一碗面', pinyin: 'yī wǎn miàn', en: 'A bowl of noodles', ex: '我想要一碗干捞面。' },
       { act: 4, word: '<ruby>一<rt>yī</rt></ruby><ruby>杯<rt>bēi</rt></ruby><ruby>茶<rt>chá</rt></ruby>', raw: '一杯茶', pinyin: 'yī bēi chá', en: 'A cup of tea', ex: '再来一杯热拉茶。' },
       { act: 5, word: '<ruby>大<rt>dà</rt></ruby><ruby>学<rt>xué</rt></ruby>', raw: '大学', pinyin: 'dà xué', en: 'University', ex: '我在大学学习中文。' },
-      { act: 5, word: '<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>', raw: '谢谢老师', pinyin: 'xiè xie lǎo shī', en: 'Thank you, Teacher', ex: '谢谢老师，您辛苦了！' }
+      { act: 5, word: '<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xie</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>', raw: '谢谢老师', pinyin: 'xiè xie lǎo shī', en: 'Thank you, Teacher', ex: '谢谢老师，您辛苦了！' },
+      { act: 6, word: '<ruby>一<rt>yī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>书<rt>shū</rt></ruby>', raw: '一本书', pinyin: 'yī běn shū', en: 'A book', ex: '我想借这本中文书。' },
+      { act: 6, word: '<ruby>安<rt>ān</rt></ruby><ruby>静<rt>jìng</rt></ruby>', raw: '安静', pinyin: 'ān jìng', en: 'Quiet', ex: '在图书馆要保持安静。' },
+      { act: 7, word: '<ruby>星<rt>xīng</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>三<rt>sān</rt></ruby>', raw: '星期三', pinyin: 'xīng qī sān', en: 'Wednesday', ex: '星期三上午八点半上课。' },
+      { act: 7, word: '<ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby>', raw: '明天', pinyin: 'míng tiān', en: 'Tomorrow', ex: '明天早上我有中文课。' },
+      { act: 8, word: '<ruby>下<rt>xià</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>雨<rt>yǔ</rt></ruby>', raw: '下大雨', pinyin: 'xià dà yǔ', en: 'Rain heavily', ex: '今天外面下大雨，记得带伞。' },
+      { act: 8, word: '<ruby>绿<rt>lǜ</rt></ruby><ruby>色<rt>sè</rt></ruby>', raw: '绿色', pinyin: 'lǜ sè', en: 'Green', ex: '校园里的树叶是绿色的。' },
+      { act: 9, word: '<ruby>头<rt>tóu</rt></ruby><ruby>疼<rt>téng</rt></ruby>', raw: '头疼', pinyin: 'tóu téng', en: 'Headache', ex: '我不舒服，有点儿头疼。' },
+      { act: 9, word: '<ruby>多<rt>duō</rt></ruby><ruby>喝<rt>hē</rt></ruby><ruby>水<rt>shuǐ</rt></ruby>', raw: '多喝水', pinyin: 'duō hē shuǐ', en: 'Drink more water', ex: '医生让我多喝水、多休息。' },
+      { act: 10, word: '<ruby>在<rt>zài</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>儿<rt>r</rt></ruby>', raw: '在哪儿', pinyin: 'zài nǎr', en: 'Where is...?', ex: '请问，图书馆在哪儿？' },
+      { act: 10, word: '<ruby>往<rt>wǎng</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>走<rt>zǒu</rt></ruby>', raw: '往前走', pinyin: 'wǎng qián zǒu', en: 'Walk straight', ex: '一直往前走就到了。' }
     ];
 
     let scene, camera, renderer, playerHandGroup, heldItemMesh, waterMeshRef, cloudsGroup;
-    const campusNPCs = [], voxelParticles = [];
+    const campusNPCs = [];
+    const voxelParticles = [];
     let currentPropIdx = 0, isToneLensActive = false, lightingModeIndex = 0;
     let currentActiveQuizStation = null, currentActiveQuizIndex = 0, activeStationNear = null, isPointerLocked = false;
 
@@ -612,11 +750,13 @@
       sun.position.set(80, 140, 60);
       scene.add(sun);
 
+      // Ground
       grassTex.wrapS = grassTex.wrapT = THREE.RepeatWrapping; grassTex.repeat.set(90, 90);
       const ground = new THREE.Mesh(new THREE.PlaneGeometry(650, 650), new THREE.MeshLambertMaterial({ map: grassTex }));
       ground.rotation.x = -Math.PI / 2;
       scene.add(ground);
 
+      // Campus Lake Water
       waterMeshRef = new THREE.Mesh(
         new THREE.CircleGeometry(36, 24),
         new THREE.MeshLambertMaterial({ color: 0x0284c7, transparent: true, opacity: 0.85 })
@@ -625,6 +765,8 @@
       waterMeshRef.position.set(15, 0.08, -150);
       scene.add(waterMeshRef);
 
+      // Central Roundabout & Main Roads
+      // Google Maps 1:3 比例真实校道网 (Jalan Universiti, Jalan Canselor, Jalan Tungku Link)
       function addCampusRoadSegment(x1, z1, x2, z2, width = 9) {
         const len = Math.hypot(x2 - x1, z2 - z1);
         const road = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, width), new THREE.MeshLambertMaterial({ color: 0x334155 }));
@@ -636,13 +778,14 @@
         stripe.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
         scene.add(stripe);
       }
-      addCampusRoadSegment(-73.9, 73.8, 0, 0, 10);
-      addCampusRoadSegment(0, 0, -244.9, -41.5, 9);
-      addCampusRoadSegment(0, 0, 4.6, -73.7, 9);
-      addCampusRoadSegment(4.6, -73.7, 55, -160, 8);
-      addCampusRoadSegment(0, 0, 72, 23, 8);
-      addCampusRoadSegment(65, -75, 150, -250, 10);
+      addCampusRoadSegment(-73.9, 73.8, 0, 0, 10);       // Jalan Canselor -> Library Roundabout
+      addCampusRoadSegment(0, 0, -244.9, -41.5, 9);      // Jalan Universiti West -> Sports Complex
+      addCampusRoadSegment(0, 0, 4.6, -73.7, 9);         // Central Spine -> Student Centre/Canteen
+      addCampusRoadSegment(4.6, -73.7, 55, -160, 8);     // North Lake Road -> Mosque
+      addCampusRoadSegment(0, 0, 72, 23, 8);             // East Spine -> Great Wall Stairs
+      addCampusRoadSegment(65, -75, 150, -250, 10);      // Jalan Tungku Link -> The Core Market
 
+      // Elevated Ridge & Great Wall Stairs Stairs to Language Centre
       const ridge = new THREE.Mesh(new THREE.BoxGeometry(44, 4.2, 68), new THREE.MeshLambertMaterial({ map: grassTex }));
       ridge.position.set(123.5, 2.1, 24);
       scene.add(ridge);
@@ -652,6 +795,7 @@
         scene.add(step);
       }
 
+      // Clouds
       cloudsGroup = new THREE.Group();
       const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
       for (let i = 0; i < 18; i++) {
@@ -661,6 +805,7 @@
       }
       scene.add(cloudsGroup);
 
+      // Tropical Palm Trees
       const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
       const leafMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
       for (let i = 0; i < 36; i++) {
@@ -675,6 +820,7 @@
         scene.add(trunk, crown);
       }
 
+      // Build All 10 University Landmarks + Beacons + 3D Voxel NPCs
       UNI_CAMPUS_REGISTRY.forEach(st => {
         const g = new THREE.Group();
         const by = getTerrainHeightAt(st.x, st.z);
@@ -702,6 +848,7 @@
           g.add(b, roof);
         }
 
+        // Beacon Beam
         const beam = new THREE.Mesh(
           new THREE.CylinderGeometry(0.45, 0.45, 90, 8),
           new THREE.MeshBasicMaterial({ color: st.beaconColor, transparent: true, opacity: 0.35 })
@@ -806,6 +953,7 @@
       showPixelToast(`已切换校园光影：${p.icon} ${p.name.replace(' [L]', '')}`, p.icon);
     }
 
+    // 5. Controls & Physics
     function initInputControls() {
       window.addEventListener('keydown', e => {
         audio.init();
@@ -844,7 +992,20 @@
         document.getElementById('start-screen-overlay').style.display = 'none';
         if (container.requestPointerLock) container.requestPointerLock();
       });
-      document.addEventListener('pointerlockchange', () => { isPointerLocked = (document.pointerLockElement === container); });
+      document.getElementById('webgl-canvas').addEventListener('click', () => {
+        const anyModalOpen = ['campus-map-modal','station-dialog-modal','vocab-book-modal','character-modal'].some(id => document.getElementById(id).style.display === 'flex');
+        const startOpen = document.getElementById('start-screen-overlay').style.display !== 'none';
+        if (!anyModalOpen && !startOpen && !isPointerLocked && container.requestPointerLock) {
+          container.requestPointerLock();
+        }
+      });
+      document.addEventListener('pointerlockchange', () => {
+        isPointerLocked = (document.pointerLockElement === container);
+        const hint = document.getElementById('cursor-lock-hint');
+        const anyModalOpen = ['campus-map-modal','station-dialog-modal','vocab-book-modal','character-modal'].some(id => document.getElementById(id).style.display === 'flex');
+        const startOpen = document.getElementById('start-screen-overlay').style.display !== 'none';
+        if (hint) hint.style.display = (!isPointerLocked && !anyModalOpen && !startOpen) ? 'block' : 'none';
+      });
       document.addEventListener('mousemove', e => {
         if (!isPointerLocked) return;
         player.yaw -= e.movementX * 0.0022;
@@ -929,6 +1090,7 @@
       } else { activeStationNear = null; pe.style.display = 'none'; }
     }
 
+    // 6. 5-Act Interactive Mini-Games & Quizzes
     function triggerInteractWithNearest() {
       if (!activeStationNear) { showPixelToast('请走近地标建筑门口，或按 [1] 使用寻路罗盘一键导航！', '🧭'); return; }
       audio.playVillager();
@@ -947,7 +1109,7 @@
         document.getElementById('station-topic-badge').innerHTML = st.learning.topic;
         document.getElementById('station-english-translation').innerHTML = `<strong>English:</strong> ${st.learning.englishTranslation}`;
         document.getElementById('station-vocab-box').innerHTML = st.learning.keyVocab;
-        renderInteractiveMiniGameForStation(st);
+        if (['LC','SPORTS','COMMERCIAL','DINING','CHANCELLOR'].includes(st.id)) { renderInteractiveMiniGameForStation(st); } else { document.getElementById('station-interactive-zone').style.display = 'none'; }
         loadQuizForStation(st, 0);
       } else {
         currentActiveQuizStation = null;
@@ -972,7 +1134,22 @@
       if (station.id === 'LC') {
         const chars = [{ ch: '十', py: 'shí (Ten)', strokes: 2, tip: '先横 (一) 后竖 (丨)' }, { ch: '人', py: 'rén (Person)', strokes: 2, tip: '先撇 (丿) 后捺 (㇏)' }, { ch: '大', py: 'dà (Big)', strokes: 3, tip: '横 → 撇 → 捺' }];
         let cIdx = 0, drawn = 0;
-        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🖌️ 实体互动 1：毛笔汉字笔画临摹板</span><span class="minigame-badge" id="stroke-status-badge">笔画: 0 / 2</span></div><div class="stroke-pad-wrap"><canvas id="stroke-canvas" width="150" height="150"></canvas><div style="flex:1;min-width:180px;font-size:12.5px;line-height:1.55;"><div style="font-weight:800;font-size:15px;">当前临摹：<span id="stroke-target-label"></span></div><div id="stroke-rule-tip" style="color:#93c5fd;margin:4px 0;"></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"><button class="mini-action-btn secondary" id="stroke-clear-btn">重写</button><button class="mini-action-btn" id="stroke-next-char-btn">换字 ➔</button><button class="mini-action-btn success" id="stroke-speak-btn">🔊 读音</button></div></div></div></div>`;
+        zone.innerHTML = `
+          <div class="interactive-minigame-card">
+            <div class="minigame-header"><span>🖌️ 实体互动 1：毛笔汉字笔画临摹板</span><span class="minigame-badge" id="stroke-status-badge">笔画: 0 / 2</span></div>
+            <div class="stroke-pad-wrap">
+              <canvas id="stroke-canvas" width="150" height="150"></canvas>
+              <div style="flex:1;min-width:180px;font-size:12.5px;line-height:1.55;">
+                <div style="font-weight:800;font-size:15px;">当前临摹：<span id="stroke-target-label"></span></div>
+                <div id="stroke-rule-tip" style="color:#93c5fd;margin:4px 0;"></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+                  <button class="mini-action-btn secondary" id="stroke-clear-btn">重写</button>
+                  <button class="mini-action-btn" id="stroke-next-char-btn">换字 ➔</button>
+                  <button class="mini-action-btn success" id="stroke-speak-btn">🔊 读音</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
         const canvas = document.getElementById('stroke-canvas'), ctx = canvas.getContext('2d');
         let drawing = false;
         function drawGuide() {
@@ -1020,13 +1197,13 @@
         spawnT();
       } else if (station.id === 'COMMERCIAL') {
         let paid = 0;
-        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>💵 实体互动 3：校园合作社付款台</span><span class="minigame-badge" id="bnd-paid-badge">已付: $0.00 / $15.50</span></div><div style="font-size:12.5px;">萨拉学姐：“这本课本一共 <strong style="color:#facc15;">十五块五毛钱 ($15.50)</strong>，请凑出准确金额！”</div><div class="bnd-tray"><button class="bnd-note-btn" data-val="10">$10</button><button class="bnd-note-btn" data-val="5">$5</button><button class="bnd-note-btn" data-val="1">$1</button><button class="bnd-note-btn coin" data-val="0.5">50¢</button><button class="bnd-note-btn coin" data-val="0.2">20¢</button><button class="bnd-note-btn coin" data-val="0.1">10¢</button><button class="mini-action-btn secondary" id="bnd-reset-btn">清零</button></div></div>`;
+        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>💵 实体互动 3：文莱币 (BND) 付款台</span><span class="minigame-badge" id="bnd-paid-badge">已付: $0.00 / $15.50</span></div><div style="font-size:12.5px;">萨拉学姐：“这本课本一共 <strong style="color:#facc15;">十五块五毛钱 ($15.50 BND)</strong>，请凑出准确金额！”</div><div class="bnd-tray"><button class="bnd-note-btn" data-val="10">$10</button><button class="bnd-note-btn" data-val="5">$5</button><button class="bnd-note-btn" data-val="1">$1</button><button class="bnd-note-btn coin" data-val="0.5">50¢</button><button class="bnd-note-btn coin" data-val="0.2">20¢</button><button class="bnd-note-btn coin" data-val="0.1">10¢</button><button class="mini-action-btn secondary" id="bnd-reset-btn">清零</button></div></div>`;
         const b = document.getElementById('bnd-paid-badge');
         zone.querySelectorAll('.bnd-note-btn').forEach(btn => {
           btn.onclick = () => {
             paid = Math.round((paid + parseFloat(btn.dataset.val)) * 100) / 100;
             b.textContent = `已付: $${paid.toFixed(2)} / $15.50`; audio.playDing();
-            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showPixelToast('💵 刚好 $15.50！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
+            if (Math.abs(paid - 15.5) < 0.001) { b.style.background = '#16a34a'; showPixelToast('💵 刚好 $15.50 BND！交易成功！', '💵'); speakChinese('十五块五毛钱，谢谢'); }
             else if (paid > 15.5) showPixelToast('😅 付多啦，点清零重试！', '💵');
           };
         });
@@ -1047,8 +1224,7 @@
           };
         });
       } else if (station.id === 'CHANCELLOR') {
-        const curName = (document.getElementById('char-name-input') && document.getElementById('char-name-input').value) || 'Jun (郑国君)';
-        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🎓 实体互动 5：电子结业证书颁发台</span><span class="minigame-badge">PNG Certificate</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;"><input id="cert-student-name" type="text" value="${curName}" style="flex:1;min-width:150px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:12px;" /><button class="mini-action-btn" id="cert-gen-btn">刷新证书</button><button class="mini-action-btn success" id="cert-dl-btn">⬇️ 下载 PNG</button></div><canvas id="cert-canvas" width="520" height="220"></canvas></div>`;
+        zone.innerHTML = `<div class="interactive-minigame-card"><div class="minigame-header"><span>🎓 实体互动 5：电子结业证书颁发台</span><span class="minigame-badge">PNG Certificate</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;"><input id="cert-student-name" type="text" value="Jun (郑国君)" style="flex:1;min-width:150px;padding:6px 10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:12px;" /><button class="mini-action-btn" id="cert-gen-btn">刷新证书</button><button class="mini-action-btn success" id="cert-dl-btn">⬇️ 下载 PNG</button></div><canvas id="cert-canvas" width="520" height="220"></canvas></div>`;
         function drawCert() {
           const c = document.getElementById('cert-canvas'), ctx = c.getContext('2d'), nm = document.getElementById('cert-student-name').value || 'University Student';
           ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,520,220);
@@ -1056,11 +1232,11 @@
           ctx.fillStyle = '#facc15'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('UNIVERSITY · LANGUAGE CENTRE', 260, 42);
           ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('初级华语结业证书', 260, 78);
           ctx.fillStyle = '#4ade80'; ctx.font = 'bold 24px sans-serif'; ctx.fillText(nm, 260, 125);
-          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed My University Adventure - Pixel · Level ${player.level}`, 260, 165);
+          ctx.fillStyle = '#cbd5e1'; ctx.font = '12px sans-serif'; ctx.fillText(`Completed University Pixel Mandarin Adventure v2.0 · Level ${player.level}`, 260, 165);
           ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.fillText(`Chancellor Hall Convocation · ${new Date().toLocaleDateString()}`, 260, 190);
         }
         document.getElementById('cert-gen-btn').onclick = () => { audio.playDing(); drawCert(); };
-        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'University_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showPixelToast('🎓 结业证书 PNG 已下载！', '🎓'); };
+        document.getElementById('cert-dl-btn').onclick = () => { drawCert(); const a = document.createElement('a'); a.download = 'UNI_Mandarin_Certificate.png'; a.href = document.getElementById('cert-canvas').toDataURL('image/png'); a.click(); showPixelToast('🎓 结业证书 PNG 已下载！', '🎓'); };
         drawCert();
       }
     }
@@ -1110,6 +1286,7 @@
       applyToneLensToDOM();
     }
 
+    // 7. 6 大学习辅助道具触发引擎
     function applyToneLensToDOM() {
       document.querySelectorAll('rt').forEach(rt => {
         const t = rt.textContent || '';
@@ -1188,6 +1365,7 @@
       }
     }
 
+    // 8. Radar, Full Map, Hotbar & Loop
     function renderRadarCanvas() {
       const c = document.getElementById('radar-canvas'); if (!c) return;
       const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2, cy = h/2, r = 52, sc = r / 260;
@@ -1206,13 +1384,16 @@
       const ctx = c.getContext('2d'), w = c.width, h = c.height, cx = w/2 + 45, cy = h/2 + 35, sx = 1.15, sz = 0.72;
       ctx.fillStyle = '#0f291e'; ctx.fillRect(0,0,w,h);
 
+      // Google Maps 坐标网格线
       ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)'; ctx.lineWidth = 1;
       for (let gx = 0; gx < w; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke(); }
       for (let gy = 0; gy < h; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke(); }
 
+      // Campus Lake (Tasik)
       ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(cx+15*sx, cy-150*sz, 38, 18, 0, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#bae6fd'; ctx.font = '10px sans-serif'; ctx.fillText('景观湖 (Lake)', cx+15*sx-30, cy-150*sz+4);
 
+      // Google Maps 1:3 比例真实校道网
       ctx.strokeStyle = '#475569'; ctx.lineWidth = 7; ctx.lineCap = 'round';
       const drawRoad = (x1, z1, x2, z2) => { ctx.beginPath(); ctx.moveTo(cx+x1*sx, cy+z1*sz); ctx.lineTo(cx+x2*sx, cy+z2*sz); ctx.stroke(); };
       drawRoad(-73.9, 73.8, 0, 0);
@@ -1222,6 +1403,7 @@
       drawRoad(0, 0, 115.6, 23.1);
       drawRoad(65, -75, 150, -250);
 
+      // 比例尺 (Scale Bar: 50 game units = 150 real meters)
       ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.fillRect(14, h - 42, 165, 28);
       ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(24, h - 22); ctx.lineTo(24 + 50*sx, h - 22); ctx.stroke();
@@ -1290,6 +1472,10 @@
       } catch (e) {}
     }
 
+
+    // ==========================================================================
+    // v3.0 升级模块：Google Maps 1:3 比例真实地图 + 角色系统 + 时装衣橱 + 第三人称视角
+    // ==========================================================================
     let isThirdPerson = false;
     let thirdPersonAvatarGroup = null;
     let avatarParts = {};
@@ -1367,12 +1553,16 @@
       const hex = n => '#' + n.toString(16).padStart(6, '0');
       ctx.clearRect(0, 0, c.width, c.height);
 
+      // Legs
       ctx.fillStyle = hex(o.pants);
       ctx.fillRect(62, 140, 24, 56); ctx.fillRect(94, 140, 24, 56);
+      // Torso & Sleeves
       ctx.fillStyle = hex(o.torso); ctx.fillRect(58, 78, 64, 62);
       ctx.fillStyle = hex(o.sleeve); ctx.fillRect(36, 78, 20, 54); ctx.fillRect(124, 78, 20, 54);
+      // Head
       ctx.fillStyle = '#d6a37a'; ctx.fillRect(64, 28, 52, 48);
       ctx.fillStyle = '#0f172a'; ctx.fillRect(74, 48, 8, 8); ctx.fillRect(98, 48, 8, 8);
+      // Hat
       if (o.hat) {
         ctx.fillStyle = hex(o.hatColor);
         if (o.hat === 'chef') ctx.fillRect(66, 4, 48, 26);
@@ -1403,7 +1593,7 @@
       const cleared = UNI_CAMPUS_REGISTRY.filter(s => s.type === 'active' && s.completed).length;
       const o = OUTFITS_CATALOG.find(x => x.id === currentOutfitId) || OUTFITS_CATALOG[0];
       document.getElementById('stat-level').textContent = `Lv. ${player.level}`;
-      document.getElementById('stat-acts').textContent = `${cleared} / 5`;
+      document.getElementById('stat-acts').textContent = `${cleared} / 10`;
       document.getElementById('stat-outfit').textContent = `${o.icon} ${o.name}`;
       document.getElementById('stat-speed').textContent = player.isSprinting ? '28 u/s (疾跑)' : '18 u/s (标准)';
       document.getElementById('stat-coords').textContent = `X: ${player.pos.x.toFixed(1)}, Z: ${player.pos.z.toFixed(1)} (1:3)`;
